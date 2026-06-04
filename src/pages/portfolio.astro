@@ -1,0 +1,65 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const projects = [
+  {
+    title: 'Eksempelprosjekt 1',
+    type: 'Nettside',
+    desc: 'Bedriftsside med booking-integrasjon og SEO-optimalisering.',
+    tags: ['Astro', 'Tailwind', 'Booking'],
+  },
+  {
+    title: 'Eksempelprosjekt 2',
+    type: 'Mobilapp',
+    desc: 'Cross-platform app for administrasjon av ansatte og timeregistrering.',
+    tags: ['React Native', 'iOS', 'Android'],
+  },
+  {
+    title: 'Eksempelprosjekt 3',
+    type: 'Nettbutikk',
+    desc: 'E-handelsløsning med tilpasset kasseflyt og lagerintegrasjon.',
+    tags: ['Next.js', 'Stripe', 'E-handel'],
+  },
+];
+---
+
+<Layout title="Portfolio" description="Se eksempler på nettsider og apper vi har laget.">
+
+  <section class="pt-36 pb-16 px-6 text-center">
+    <div class="max-w-2xl mx-auto">
+      <span class="text-cyan-400 text-sm font-semibold tracking-widest uppercase">Arbeidet vårt</span>
+      <h1 class="text-4xl md:text-5xl font-extrabold mt-3 mb-4">Portfolio</h1>
+      <p class="text-gray-400 text-lg">Et utvalg av prosjekter vi har levert.</p>
+    </div>
+  </section>
+
+  <section class="pb-24 px-6">
+    <div class="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
+      {projects.map(p => (
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-cyan-900 transition-colors group">
+          <div class="h-48 bg-gradient-to-br from-cyan-950 to-gray-800 flex items-center justify-center">
+            <span class="text-5xl opacity-30 group-hover:opacity-60 transition-opacity">💻</span>
+          </div>
+          <div class="p-6">
+            <span class="text-xs text-cyan-400 font-semibold uppercase tracking-wider">{p.type}</span>
+            <h3 class="text-lg font-bold mt-1 mb-2">{p.title}</h3>
+            <p class="text-gray-400 text-sm mb-4">{p.desc}</p>
+            <div class="flex flex-wrap gap-2">
+              {p.tags.map(tag => (
+                <span class="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-md">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="max-w-5xl mx-auto mt-12 text-center">
+      <p class="text-gray-500 text-sm">Vil du se mer? Ta kontakt – vi viser deg gjerne mer av arbeidet vårt.</p>
+      <a href="/kontakt" class="inline-block mt-4 text-cyan-400 hover:text-cyan-300 font-semibold transition-colors">
+        Send en melding →
+      </a>
+    </div>
+  </section>
+
+</Layout>
