@@ -15,41 +15,68 @@ import Layout from '../layouts/Layout.astro';
   <section class="pb-24 px-6">
     <div class="max-w-5xl mx-auto">
 
-      <!-- Løft App - featured project -->
-      <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden mb-8">
-        <div class="p-8 md:p-10">
-          <span class="text-xs text-orange-400 font-semibold uppercase tracking-wider">Mobilapp</span>
-          <h2 class="text-2xl font-bold mt-1 mb-3">Løft – Treningsapp</h2>
-          <p class="text-gray-400 mb-6 max-w-2xl">
-            En fullverdig treningsapp for iOS og Android. Brukerne kan logge økter, følge strukturerte programmer,
-            spore fremgang og planlegge treningen sin med en innebygd kalender. Designet med fokus på enkel og rask bruk under trening.
-          </p>
-          <div class="flex flex-wrap gap-2 mb-8">
-            {['React Native', 'iOS', 'Android', 'Supabase', 'TypeScript'].map(tag => (
-              <span class="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-md">{tag}</span>
-            ))}
-          </div>
-          <!-- App screenshots -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="rounded-2xl overflow-hidden border border-gray-700">
-              <img src="/images/loft-hjem.jpg" alt="Løft app - Hjem" class="w-full h-auto object-cover" />
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-10 bg-gray-900 border border-gray-800 rounded-xl p-1 w-fit mx-auto">
+        <button
+          id="tab-apper"
+          onclick="showTab('apper')"
+          class="tab-btn px-6 py-2 rounded-lg font-semibold text-sm transition-colors bg-cyan-500 text-gray-950"
+        >
+          📱 Apper
+        </button>
+        <button
+          id="tab-nettsider"
+          onclick="showTab('nettsider')"
+          class="tab-btn px-6 py-2 rounded-lg font-semibold text-sm transition-colors text-gray-400 hover:text-white"
+        >
+          🌐 Nettsider
+        </button>
+      </div>
+
+      <!-- Apper -->
+      <div id="content-apper">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+          <div class="p-8 md:p-10">
+            <span class="text-xs text-orange-400 font-semibold uppercase tracking-wider">Mobilapp</span>
+            <h2 class="text-2xl font-bold mt-1 mb-3">Løft – Treningsapp</h2>
+            <p class="text-gray-400 mb-6 max-w-2xl">
+              En fullverdig treningsapp for iOS og Android. Brukerne kan logge økter, følge strukturerte programmer,
+              spore fremgang og planlegge treningen sin med en innebygd kalender. Designet med fokus på enkel og rask bruk under trening.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-8">
+              {['React Native', 'iOS', 'Android', 'Supabase', 'TypeScript'].map(tag => (
+                <span class="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-md">{tag}</span>
+              ))}
             </div>
-            <div class="rounded-2xl overflow-hidden border border-gray-700">
-              <img src="/images/loft-okt.jpg" alt="Løft app - Økt" class="w-full h-auto object-cover" />
-            </div>
-            <div class="rounded-2xl overflow-hidden border border-gray-700">
-              <img src="/images/loft-programmer.jpg" alt="Løft app - Programmer" class="w-full h-auto object-cover" />
-            </div>
-            <div class="rounded-2xl overflow-hidden border border-gray-700">
-              <img src="/images/loft-kalender.jpg" alt="Løft app - Kalender" class="w-full h-auto object-cover" />
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="rounded-2xl overflow-hidden border border-gray-700">
+                <img src="/images/loft-hjem.jpg" alt="Løft app - Hjem" class="w-full h-auto object-cover" />
+              </div>
+              <div class="rounded-2xl overflow-hidden border border-gray-700">
+                <img src="/images/loft-okt.jpg" alt="Løft app - Økt" class="w-full h-auto object-cover" />
+              </div>
+              <div class="rounded-2xl overflow-hidden border border-gray-700">
+                <img src="/images/loft-programmer.jpg" alt="Løft app - Programmer" class="w-full h-auto object-cover" />
+              </div>
+              <div class="rounded-2xl overflow-hidden border border-gray-700">
+                <img src="/images/loft-kalender.jpg" alt="Løft app - Kalender" class="w-full h-auto object-cover" />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- Nettsider -->
+      <div id="content-nettsider" class="hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center text-gray-500">
+          <div class="text-5xl mb-4">🌐</div>
+          <p>Nettsideprosjekter kommer snart.</p>
+        </div>
+      </div>
+
     </div>
 
-    <div class="max-w-5xl mx-auto mt-6 text-center">
+    <div class="max-w-5xl mx-auto mt-10 text-center">
       <p class="text-gray-500 text-sm">Vil du se mer? Ta kontakt – vi viser deg gjerne mer av arbeidet vårt.</p>
       <a href="/kontakt" class="inline-block mt-4 text-cyan-400 hover:text-cyan-300 font-semibold transition-colors">
         Send en melding →
@@ -58,3 +85,24 @@ import Layout from '../layouts/Layout.astro';
   </section>
 
 </Layout>
+
+<script>
+  function showTab(tab: string) {
+    const tabs = ['apper', 'nettsider'];
+    tabs.forEach(t => {
+      const btn = document.getElementById(`tab-${t}`);
+      const content = document.getElementById(`content-${t}`);
+      if (t === tab) {
+        btn?.classList.add('bg-cyan-500', 'text-gray-950');
+        btn?.classList.remove('text-gray-400', 'hover:text-white');
+        content?.classList.remove('hidden');
+      } else {
+        btn?.classList.remove('bg-cyan-500', 'text-gray-950');
+        btn?.classList.add('text-gray-400', 'hover:text-white');
+        content?.classList.add('hidden');
+      }
+    });
+  }
+
+  (window as any).showTab = showTab;
+</script>
