@@ -1,0 +1,120 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Personvernerklæring" description="Personvernerklæring for Løft-appen utviklet av MHH Digital.">
+
+  <section class="pt-36 pb-24 px-6">
+    <div class="max-w-3xl mx-auto">
+
+      <h1 class="text-4xl font-extrabold mb-2">Personvernerklæring for Løft</h1>
+      <p class="text-gray-500 text-sm mb-12">Sist oppdatert: 11. juni 2026</p>
+
+      <div class="space-y-10 text-gray-300 leading-relaxed">
+
+        <div>
+          <h2 class="text-xl font-bold text-white mb-3">Om appen</h2>
+          <p>Løft er en treningsapplikasjon for styrketrening. Appen lar deg logge treningsøkter, følge med på personlige rekorder, følge treningsprogrammer og synkronisere data med Apple Helse-appen.</p>
+        </div>
+
+        <hr class="border-gray-800" />
+
+        <div>
+          <h2 class="text-xl font-bold text-white mb-3">Hvilke data samler vi inn?</h2>
+          <h3 class="font-semibold text-gray-200 mb-2">Data du gir oss</h3>
+          <ul class="list-disc pl-5 space-y-1 mb-4">
+            <li><strong class="text-white">E-postadresse</strong> – brukes til å opprette og logge inn på kontoen din</li>
+            <li><strong class="text-white">Treningsdata</strong> – øvelser, sett, repetisjoner og vekt du registrerer</li>
+            <li><strong class="text-white">Profilinformasjon</strong> – navn og andre valgfrie profilopplysninger</li>
+          </ul>
+          <h3 class="font-semibold text-gray-200 mb-2">Data fra Apple Helse</h3>
+          <ul class="list-disc pl-5 space-y-1 mb-4">
+            <li>Hvis du velger å koble til Apple Helse, lagrer appen treningsøktene dine der</li>
+            <li>Vi leser ikke andre helsedata enn det du eksplisitt gir tilgang til</li>
+          </ul>
+          <h3 class="font-semibold text-gray-200 mb-2">Data vi ikke samler inn</h3>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Vi har ikke tilgang til kameraet ditt</li>
+            <li>Vi har ikke tilgang til bildebiblioteket ditt</li>
+            <li>Vi samler ikke inn posisjon</li>
+            <li>Vi bruker ikke annonser og deler ikke data med annonsører</li>
+          </ul>
+        </div>
+
+        <hr class="border-gray-800" />
+
+        <div>
+          <h2 class="text-xl font-bold text-white mb-3">Hvordan bruker vi dataene?</h2>
+          <p class="mb-2">Vi bruker dataene utelukkende til å:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>La deg logge inn og synkronisere treningsdata mellom enheter</li>
+            <li>Lagre og vise treningshistorikken din</li>
+            <li>Holde oversikt over personlige rekorder</li>
+            <li>Sende e-postvarsler (bekreftelse ved registrering)</li>
+          </ul>
+        </div>
+
+        <hr class="border-gray-800" />
+
+        <div>
+          <h2 class="text-xl font-bold text-white mb-3">Lagring og sikkerhet</h2>
+          <p>Dataene dine lagres sikkert hos <a href="https://supabase.com" class="text-cyan-400 hover:text-cyan-300">Supabase</a>, en skyleverandør. Innloggingstoken lagres kryptert lokalt på enheten din. Vi selger aldri dataene dine til tredjeparter.</p>
+        </div>
+
+        <hr class="border-gray-800" />
+
+        <div>
+          <h2 class="text-xl font-bold text-white mb-3">Deling av data</h2>
+          <p class="mb-2">Vi deler ikke personopplysningene dine med andre, med unntak av:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li><strong class="text-white">Supabase</strong> – som databaseleverandør og autentiseringstjeneste</li>
+            <li><strong class="text-white">Resend</strong> – som e-postleverandør for bekreftelsesmail ved registrering</li>
+          </ul>
+        </div>
+
+        <hr class="border-gray-800" />
+
+        <div>
+          <h2 class="text-xl font-bold text-white mb-3">Apple Helse</h2>
+          <p class="mb-2">Hvis du kobler appen til Apple Helse:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Treningsøkter lagres automatisk i Helse-appen etter fullført økt</li>
+            <li>Du kan når som helst trekke tilbake tilgangen via iPhone-innstillinger → Personvern og sikkerhet → Helse → Løft</li>
+          </ul>
+        </div>
+
+        <hr class="border-gray-800" />
+
+        <div>
+          <h2 class="text-xl font-bold text-white mb-3">Dine rettigheter</h2>
+          <p class="mb-2">Du har rett til å:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Be om innsyn i dataene vi har lagret om deg</li>
+            <li>Slette kontoen din og alle tilhørende data (tilgjengelig direkte i appen under Innstillinger)</li>
+            <li>Eksportere treningsdataene dine</li>
+          </ul>
+        </div>
+
+        <hr class="border-gray-800" />
+
+        <div>
+          <h2 class="text-xl font-bold text-white mb-3">Kontakt</h2>
+          <p>Har du spørsmål om personvern? Ta kontakt:</p>
+          <p class="mt-2">
+            <span class="text-white font-semibold">E-post:</span> <a href="mailto:kjetil@mhhdigital.no" class="text-cyan-400 hover:text-cyan-300">kjetil@mhhdigital.no</a><br />
+            <span class="text-white font-semibold">Nettside:</span> <a href="https://www.mhhdigital.no" class="text-cyan-400 hover:text-cyan-300">mhhdigital.no</a>
+          </p>
+        </div>
+
+        <hr class="border-gray-800" />
+
+        <div>
+          <h2 class="text-xl font-bold text-white mb-3">Endringer i personvernerklæringen</h2>
+          <p>Dersom vi gjør vesentlige endringer i denne erklæringen, vil vi varsle deg via appen. Fortsatt bruk av appen etter slike endringer regnes som aksept av den oppdaterte erklæringen.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</Layout>
