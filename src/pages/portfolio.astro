@@ -86,23 +86,21 @@ import Layout from '../layouts/Layout.astro';
 
 </Layout>
 
-<script>
-  function showTab(tab: string) {
+<script is:inline>
+  function showTab(tab) {
     const tabs = ['apper', 'nettsider'];
     tabs.forEach(t => {
-      const btn = document.getElementById(`tab-${t}`);
-      const content = document.getElementById(`content-${t}`);
+      const btn = document.getElementById('tab-' + t);
+      const content = document.getElementById('content-' + t);
       if (t === tab) {
-        btn?.classList.add('bg-cyan-500', 'text-gray-950');
-        btn?.classList.remove('text-gray-400', 'hover:text-white');
-        content?.classList.remove('hidden');
+        btn.classList.add('bg-cyan-500', 'text-gray-950');
+        btn.classList.remove('text-gray-400', 'hover:text-white');
+        content.classList.remove('hidden');
       } else {
-        btn?.classList.remove('bg-cyan-500', 'text-gray-950');
-        btn?.classList.add('text-gray-400', 'hover:text-white');
-        content?.classList.add('hidden');
+        btn.classList.remove('bg-cyan-500', 'text-gray-950');
+        btn.classList.add('text-gray-400', 'hover:text-white');
+        content.classList.add('hidden');
       }
     });
   }
-
-  (window as any).showTab = showTab;
 </script>
