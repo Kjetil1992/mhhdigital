@@ -1,0 +1,43 @@
+---
+import { verifySessionToken, COOKIE_NAME } from '../../lib/auth';
+
+const token = Astro.cookies.get(COOKIE_NAME)?.value;
+const loggedIn = token ? await verifySessionToken(token) : false;
+if (loggedIn) return Astro.redirect('/admin/dashboard');
+
+const error = Astro.url.searchParams.get('error');
+---
+
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – MHH Digital</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #030712; color: #f3f4f6; font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .card { background: #111827; border: 1px solid #1f2937; border-radius: 1rem; padding: 2.5rem; width: 100%; max-width: 380px; }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .sub { color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem; }
+    label { display: block; font-size: 0.875rem; font-weight: 500; color: #d1d5db; margin-bottom: 0.5rem; }
+    input { width: 100%; background: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.75rem 1rem; color: #fff; font-size: 1rem; outline: none; }
+    input:focus { border-color: #22d3ee; }
+    button { width: 100%; margin-top: 1.25rem; background: #06b6d4; color: #030712; font-weight: 700; padding: 0.85rem; border: none; border-radius: 0.75rem; font-size: 1rem; cursor: pointer; }
+    button:hover { background: #22d3ee; }
+    .error { background: #450a0a; border: 1px solid #7f1d1d; color: #fca5a5; padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>MHH Digital</h1>
+    <p class="sub">Admin — kun for intern bruk</p>
+    {error && <div class="error">Feil passord. Prøv igjen.</div>}
+    <form method="POST" action="/api/auth/login">
+      <label for="password">Passord</label>
+      <input id="password" name="password" type="password" autofocus autocomplete="current-password" required />
+      <button type="submit">Logg inn</button>
+    </form>
+  </div>
+</body>
+</html>

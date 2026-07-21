@@ -1,0 +1,44 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const sb = getSupabase();
+  await sb.from('customers').insert({
+    name: data.get('name'),
+    email: data.get('email'),
+    address: data.get('address'),
+    org_number: data.get('org_number') || null,
+  });
+  return Astro.redirect('/admin/kunder');
+}
+---
+
+<AdminLayout title="Ny kunde">
+  <div class="max-w-xl">
+    <h1 class="text-2xl font-bold mb-8">Ny kunde</h1>
+    <form method="POST" class="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-5">
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">Navn *</label>
+        <input name="name" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">E-post *</label>
+        <input name="email" type="email" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">Adresse</label>
+        <textarea name="address" rows="2" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">Org.nr</label>
+        <input name="org_number" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre kunde</button>
+        <a href="/admin/kunder" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</a>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

@@ -1,0 +1,106 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+const sb = getSupabase();
+const { data: customers } = await sb.from('customers').select('id, name').order('name');
+const { data: projects } = await sb.from('projects').select('id, name, customer_id').order('name');
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+
+  // Generate invoice number: MHH-YYYY-NNN
+  const year = new Date().getFullYear();
+  const { count } = await sb.from('invoices').select('*', { count: 'exact', head: true });
+  const num = String((count ?? 0) + 1).padStart(3, '0');
+  const invoice_number = `MHH-${year}-${num}`;
+
+  const { data: inv } = await sb.from('invoices').insert({
+    customer_id: data.get('customer_id') || null,
+    project_id: data.get('project_id') || null,
+    invoice_number,
+    status: 'kladd',
+    due_date: data.get('due_date') || null,
+  }).select().single();
+
+  // Insert lines
+  const descriptions = data.getAll('desc');
+  const quantities = data.getAll('qty');
+  const prices = data.getAll('price');
+
+  const lines = descriptions.map((d, i) => ({
+    invoice_id: inv.id,
+    description: d,
+    quantity: Number(quantities[i]) || 1,
+    unit_price: Number(prices[i]) || 0,
+  }));
+
+  if (lines.length) await sb.from('invoice_lines').insert(lines);
+
+  return Astro.redirect(`/admin/fakturaer/${inv.id}`);
+}
+---
+
+<AdminLayout title="Ny faktura">
+  <div class="max-w-2xl">
+    <h1 class="text-2xl font-bold mb-8">Ny faktura</h1>
+    <form method="POST" class="space-y-6">
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-5">
+        <div class="grid grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Kunde *</label>
+            <select name="customer_id" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+              <option value="">— Velg kunde —</option>
+              {customers?.map((c: any) => <option value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Prosjekt</label>
+            <select name="project_id" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+              <option value="">— Velg prosjekt —</option>
+              {projects?.map((p: any) => <option value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Forfallsdato</label>
+          <input name="due_date" type="date" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+        </div>
+      </div>
+
+      <!-- Lines -->
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+        <h2 class="font-bold mb-4">Linjer</h2>
+        <div id="lines" class="space-y-3">
+          <div class="grid grid-cols-12 gap-2 items-center">
+            <input name="desc" placeholder="Beskrivelse" required class="col-span-6 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+            <input name="qty" type="number" placeholder="Ant." min="1" value="1" class="col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+            <input name="price" type="number" placeholder="Pris" min="0" class="col-span-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+            <div class="col-span-1"></div>
+          </div>
+        </div>
+        <button type="button" id="add-line" class="mt-4 text-sm text-cyan-400 hover:text-cyan-300 transition-colors">+ Legg til linje</button>
+      </div>
+
+      <div class="flex gap-3">
+        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Opprett faktura</button>
+        <a href="/admin/fakturaer" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</a>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+  document.getElementById('add-line').addEventListener('click', () => {
+    const container = document.getElementById('lines');
+    const row = document.createElement('div');
+    row.className = 'grid grid-cols-12 gap-2 items-center';
+    row.innerHTML = `
+      <input name="desc" placeholder="Beskrivelse" required class="col-span-6 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+      <input name="qty" type="number" placeholder="Ant." min="1" value="1" class="col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+      <input name="price" type="number" placeholder="Pris" min="0" class="col-span-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+      <button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-gray-600 hover:text-red-400 transition-colors text-lg">×</button>
+    `;
+    container.appendChild(row);
+  });
+</script>

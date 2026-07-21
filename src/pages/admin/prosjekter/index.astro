@@ -1,0 +1,57 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+const sb = getSupabase();
+const { data: projects } = await sb
+  .from('projects')
+  .select('*, customers(name)')
+  .order('created_at', { ascending: false });
+
+const statusLabel: Record<string, string> = {
+  aktiv: 'Aktiv',
+  fullfort: 'Fullført',
+  pause: 'Pause',
+};
+const statusColor: Record<string, string> = {
+  aktiv: 'text-green-400',
+  fullfort: 'text-gray-500',
+  pause: 'text-yellow-400',
+};
+---
+
+<AdminLayout title="Prosjekter">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-2xl font-bold">Prosjekter</h1>
+    <a href="/admin/prosjekter/ny" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">
+      + Nytt prosjekt
+    </a>
+  </div>
+
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+    {!projects?.length ? (
+      <p class="text-gray-500 text-center py-16">Ingen prosjekter ennå.</p>
+    ) : (
+      <table class="w-full text-sm">
+        <thead class="border-b border-gray-800">
+          <tr>
+            <th class="text-left px-6 py-3 text-gray-400 font-medium">Prosjekt</th>
+            <th class="text-left px-6 py-3 text-gray-400 font-medium">Kunde</th>
+            <th class="text-left px-6 py-3 text-gray-400 font-medium">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {projects.map((p: any) => (
+            <tr class="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
+              <td class="px-6 py-4 font-medium">{p.name}</td>
+              <td class="px-6 py-4 text-gray-400">{p.customers?.name ?? '—'}</td>
+              <td class={`px-6 py-4 font-medium ${statusColor[p.status] ?? 'text-gray-400'}`}>
+                {statusLabel[p.status] ?? p.status}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+</AdminLayout>
