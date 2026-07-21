@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nordvik Bygg – Tømrer & Byggmester</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:    #1a2c42;
+      --navy-lt: #2c4a6e;
+      --amber:   #b8834a;
+      --amber-lt:#d9a866;
+      --dark:    #12181f;
+      --white:   #ffffff;
+      --off:     #f2efe9;
+      --gray:    #64748b;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--dark); background: var(--white); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      padding: 0 40px; height: 72px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(18,24,31,.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-mark {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: var(--amber); display: flex; align-items: center;
+      justify-content: center; font-size: 20px;
+    }
+    .logo-name { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: .95rem; color: white; line-height: 1.2; }
+    .logo-name span { display: block; font-weight: 500; font-size: .72rem; color: rgba(255,255,255,.55); }
+
+    .nav-links { display: flex; gap: 8px; list-style: none; }
+    .nav-links a {
+      padding: 8px 16px; border-radius: 8px; text-decoration: none;
+      font-size: .88rem; font-weight: 500; color: rgba(255,255,255,.8);
+      transition: color .15s, background .15s;
+    }
+    .nav-links a:hover { color: white; background: rgba(255,255,255,.1); }
+
+    .nav-cta {
+      background: var(--amber); color: white; padding: 10px 22px;
+      border-radius: 8px; font-size: .88rem; font-weight: 700; text-decoration: none;
+      font-family: 'Montserrat', sans-serif; letter-spacing: .02em;
+      transition: background .15s;
+    }
+    .nav-cta:hover { background: #a06f3a; }
+
+    /* ── HERO ── */
+    .hero {
+      height: 100vh; min-height: 700px;
+      position: relative; display: flex; align-items: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1541976590-713941681591?w=1800&q=80');
+      background-size: cover; background-position: center 45%;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(105deg, rgba(18,24,31,.88) 0%, rgba(18,24,31,.55) 60%, rgba(18,24,31,.15) 100%);
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      padding: 0 80px; max-width: 760px;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--amber); color: white;
+      padding: 6px 16px; border-radius: 4px;
+      font-family: 'Montserrat', sans-serif; font-weight: 700;
+      font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 900; color: white; line-height: 1.05;
+      letter-spacing: -.02em;
+    }
+    .hero h1 em { font-style: normal; color: var(--amber-lt); }
+    .hero p {
+      margin-top: 24px; font-size: 1.1rem; color: rgba(255,255,255,.82);
+      line-height: 1.75; max-width: 480px;
+    }
+    .hero-btns { display: flex; gap: 14px; margin-top: 40px; flex-wrap: wrap; }
+    .btn-amber {
+      background: var(--amber); color: white;
+      padding: 16px 32px; border-radius: 8px;
+      font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: .95rem;
+      text-decoration: none; transition: background .15s; border: none; cursor: pointer;
+    }
+    .btn-amber:hover { background: #a06f3a; }
+    .btn-ghost {
+      background: transparent; color: white;
+      border: 2px solid rgba(255,255,255,.5);
+      padding: 16px 32px; border-radius: 8px;
+      font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: .95rem;
+      text-decoration: none; transition: border-color .15s;
+    }
+    .btn-ghost:hover { border-color: white; }
+
+    .hero-scroll {
+      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+      color: rgba(255,255,255,.5); font-size: .78rem; text-align: center; z-index: 1;
+      animation: bounce 2s infinite;
+    }
+    .hero-scroll::before { content: '↓'; display: block; font-size: 1.4rem; margin-bottom: 4px; }
+    @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
+
+    /* ── GARANTI STRIP ── */
+    .strip {
+      background: var(--amber); color: white;
+      padding: 22px 40px; display: flex; align-items: center;
+      justify-content: center; gap: 16px; text-align: center;
+    }
+    .strip-icon { font-size: 1.6rem; }
+    .strip-text { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.05rem; }
+    .strip-sub { font-size: .88rem; opacity: .85; margin-top: 2px; }
+
+    /* ── TJENESTER ── */
+    .services { background: var(--off); padding: 100px 0; }
+    .section-head { padding: 0 80px; margin-bottom: 56px; }
+    .eyebrow {
+      font-family: 'Montserrat', sans-serif; font-weight: 700;
+      font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--amber); margin-bottom: 12px;
+    }
+    .section-head h2 {
+      font-family: 'Montserrat', sans-serif; font-weight: 900;
+      font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; color: var(--dark);
+    }
+    .section-head p { margin-top: 14px; font-size: 1rem; color: var(--gray); max-width: 480px; line-height: 1.7; }
+
+    .service-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 24px; padding: 0 80px;
+    }
+    .service-card {
+      background: white; border: 1px solid #e5e0d6; border-radius: 16px;
+      padding: 32px 28px; transition: border-color .15s, transform .15s;
+    }
+    .service-card:hover { border-color: var(--amber); transform: translateY(-4px); }
+    .service-icon { font-size: 2.2rem; margin-bottom: 18px; }
+    .service-card h3 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.15rem; margin-bottom: 10px; }
+    .service-card p { color: var(--gray); font-size: .92rem; line-height: 1.6; }
+
+    /* ── PROSJEKTER (referanser) ── */
+    .cat-scroll {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 2px; padding: 0 2px;
+    }
+    .cat-card {
+      position: relative; height: 460px; overflow: hidden; cursor: pointer;
+    }
+    .cat-card img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .5s ease;
+    }
+    .cat-card:hover img { transform: scale(1.06); }
+    .cat-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.82) 0%, rgba(0,0,0,.1) 55%, transparent 100%);
+    }
+    .cat-label {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 32px 28px;
+    }
+    .cat-tag {
+      display: inline-block;
+      background: var(--amber); color: white;
+      font-family: 'Montserrat', sans-serif; font-weight: 700;
+      font-size: .7rem; letter-spacing: .08em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 3px; margin-bottom: 10px;
+    }
+    .cat-label h3 {
+      font-family: 'Montserrat', sans-serif; font-weight: 800;
+      font-size: 1.5rem; color: white; line-height: 1.1;
+    }
+    .cat-label p { color: rgba(255,255,255,.75); font-size: .88rem; margin-top: 8px; line-height: 1.55; }
+
+    /* ── PROSESS ── */
+    .process { padding: 100px 80px; }
+    .process-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-top: 56px;
+    }
+    .process-step { position: relative; }
+    .process-num {
+      font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 2.5rem;
+      color: var(--amber); opacity: .35; margin-bottom: 8px;
+    }
+    .process-step h3 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 8px; }
+    .process-step p { color: var(--gray); font-size: .9rem; line-height: 1.6; }
+
+    /* ── OM OSS ── */
+    .about {
+      display: grid; grid-template-columns: 1fr 1fr; min-height: 600px;
+    }
+    .about-img { position: relative; overflow: hidden; }
+    .about-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .about-body {
+      background: var(--navy); color: white;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 80px 72px;
+    }
+    .about-body .eyebrow { color: var(--amber-lt); }
+    .about-body h2 {
+      font-family: 'Montserrat', sans-serif; font-weight: 900;
+      font-size: clamp(1.8rem, 3vw, 2.5rem); color: white; margin-top: 12px; line-height: 1.1;
+    }
+    .about-body p { margin-top: 18px; font-size: 1rem; color: rgba(255,255,255,.75); line-height: 1.75; }
+    .about-perks { margin-top: 36px; display: flex; flex-direction: column; gap: 20px; }
+    .perk { display: flex; gap: 16px; align-items: flex-start; }
+    .perk-dot { width: 10px; height: 10px; min-width: 10px; border-radius: 50%; background: var(--amber); margin-top: 6px; }
+    .perk h4 { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: .95rem; color: white; }
+    .perk p { font-size: .88rem; color: rgba(255,255,255,.6); margin-top: 3px; line-height: 1.6; }
+
+    /* ── FULLBLEED CTA ── */
+    .cta-section {
+      position: relative; height: 460px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; overflow: hidden;
+    }
+    .cta-bg {
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1800&q=80');
+      background-size: cover; background-position: center 35%;
+    }
+    .cta-overlay {
+      position: absolute; inset: 0;
+      background: rgba(18,24,31,.78);
+    }
+    .cta-content { position: relative; z-index: 1; padding: 0 24px; }
+    .cta-content h2 {
+      font-family: 'Montserrat', sans-serif; font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3.5rem); color: white; line-height: 1.1;
+    }
+    .cta-content h2 em { font-style: normal; color: var(--amber-lt); }
+    .cta-content p { margin-top: 16px; font-size: 1.05rem; color: rgba(255,255,255,.8); }
+    .cta-content .btn-amber { margin-top: 32px; display: inline-block; font-size: 1rem; }
+
+    /* ── TILBUDSSKJEMA ── */
+    .quote { background: var(--off); padding: 100px 80px; }
+    .quote-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 56px; margin-top: 56px; align-items: start; }
+    .quote-info-card {
+      background: white; border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.07);
+      overflow: hidden;
+    }
+    .quote-info-header { background: var(--navy); color: white; padding: 28px 32px; }
+    .quote-info-header h3 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.15rem; }
+    .quote-info-body { padding: 28px 32px; }
+    .contact-detail { display: flex; gap: 16px; margin-bottom: 22px; align-items: flex-start; }
+    .contact-detail:last-child { margin-bottom: 0; }
+    .contact-icon {
+      width: 42px; height: 42px; min-width: 42px; border-radius: 10px;
+      background: var(--off); display: flex; align-items: center; justify-content: center; font-size: 19px;
+    }
+    .contact-text strong { display: block; font-weight: 600; margin-bottom: 2px; font-size: .82rem; color: var(--gray); text-transform: uppercase; letter-spacing: .05em; }
+    .contact-text span { font-size: .96rem; line-height: 1.5; }
+
+    .quote-form {
+      background: white; border-radius: 16px; padding: 40px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.07);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block; font-family: 'Montserrat', sans-serif; font-weight: 600;
+      font-size: .82rem; margin-bottom: 6px; color: var(--dark);
+    }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #e0dbd3; border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-size: .92rem; color: var(--dark);
+      background: var(--off); transition: border-color .15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none; border-color: var(--amber); background: white;
+    }
+    .field textarea { resize: vertical; min-height: 100px; }
+    .quote-form button {
+      width: 100%; margin-top: 4px;
+    }
+    .form-success {
+      display: none; text-align: center; padding: 40px 20px;
+    }
+    .form-success .check {
+      width: 56px; height: 56px; border-radius: 50%; background: var(--amber);
+      color: white; font-size: 1.6rem; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .form-success h3 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.3rem; margin-bottom: 8px; }
+    .form-success p { color: var(--gray); font-size: .95rem; line-height: 1.6; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark); color: rgba(255,255,255,.45);
+      padding: 48px 80px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-logo { font-family: 'Montserrat', sans-serif; font-weight: 800; color: white; font-size: .95rem; }
+    .footer-logo span { display: block; font-weight: 400; font-size: .8rem; color: rgba(255,255,255,.4); margin-top: 3px; }
+    footer p { font-size: .8rem; }
+    footer a { color: rgba(255,255,255,.55); text-decoration: none; }
+    footer a:hover { color: var(--amber-lt); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hero-content { padding: 0 24px; }
+      .service-grid { grid-template-columns: 1fr 1fr; padding: 0 24px; }
+      .cat-scroll { grid-template-columns: 1fr; }
+      .cat-card { height: 340px; }
+      .process { padding: 64px 24px; }
+      .process-grid { grid-template-columns: 1fr 1fr; }
+      .about { grid-template-columns: 1fr; }
+      .about-img { height: 300px; }
+      .about-body { padding: 48px 32px; }
+      .section-head, .quote { padding-left: 24px; padding-right: 24px; }
+      .quote-grid { grid-template-columns: 1fr; }
+      .quote-form { padding: 28px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      .strip { flex-direction: column; text-align: center; }
+      footer { padding: 32px 24px; flex-direction: column; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      .service-grid { grid-template-columns: 1fr; }
+      .process-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">
+    <div class="logo-mark">🔨</div>
+    <div class="logo-name">
+      Nordvik Bygg
+      <span>Tømrer · Byggmester</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#">Hjem</a></li>
+    <li><a href="#tjenester">Tjenester</a></li>
+    <li><a href="#prosjekter">Prosjekter</a></li>
+    <li><a href="#om-oss">Om oss</a></li>
+    <li><a href="#tilbud">Kontakt</a></li>
+  </ul>
+  <a href="#tilbud" class="nav-cta">Få tilbud</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-tag">🏆 Byggmesterfirma · Etablert 2009</div>
+    <h1>Solid håndverk<br/><em>fra grunnmur</em><br/>til tak</h1>
+    <p>Vi er et lokalt tømrer- og byggmesterfirma som tar prosjektet ditt fra idé til ferdig resultat — nybygg, tilbygg og rehabilitering med fagbrev og full trygghet.</p>
+    <div class="hero-btns">
+      <a href="#tilbud" class="btn-amber">Be om gratis befaring</a>
+      <a href="#prosjekter" class="btn-ghost">Se våre prosjekter</a>
+    </div>
+  </div>
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- GARANTI STRIP -->
+<div class="strip">
+  <div class="strip-icon">🛡️</div>
+  <div>
+    <div class="strip-text">10 års garanti på alt utført arbeid</div>
+    <div class="strip-sub">Godkjent foretak med sentral godkjenning og full forsikring</div>
+  </div>
+</div>
+
+<!-- TJENESTER -->
+<section class="services" id="tjenester">
+  <div class="section-head">
+    <div class="eyebrow">Tjenester</div>
+    <h2>Alt innen tømrer-<br/>og byggmesterarbeid</h2>
+    <p>Fra små oppussingsjobber til komplette nybygg — vi har fagfolkene og erfaringen til å gjøre jobben riktig, første gang.</p>
+  </div>
+  <div class="service-grid">
+    <div class="service-card">
+      <div class="service-icon">🏠</div>
+      <h3>Nybygg</h3>
+      <p>Enebolig, hytte eller garasje — vi følger deg fra tegning til nøkkelferdig bygg.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">📐</div>
+      <h3>Tilbygg & påbygg</h3>
+      <p>Trenger du mer plass? Vi planlegger og bygger tilbygg som passer sømløst inn.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🧱</div>
+      <h3>Rehabilitering</h3>
+      <p>Oppgradering av eldre boliger — fra grunnarbeid til innvendig totalrenovering.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🚿</div>
+      <h3>Bad & våtrom</h3>
+      <p>Komplett baderomsrenovering med våtromssertifisert utførelse og 10 års garanti.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROSJEKTER -->
+<section class="cat-scroll" id="prosjekter">
+  <div class="cat-card">
+    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80" alt="Nybygget enebolig" loading="lazy" />
+    <div class="cat-overlay"></div>
+    <div class="cat-label">
+      <div class="cat-tag">Nybygg</div>
+      <h3>Enebolig, Nordvika</h3>
+      <p>180 m² nøkkelferdig enebolig levert på 8 måneder.</p>
+    </div>
+  </div>
+  <div class="cat-card">
+    <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=900&q=80" alt="Moderne tilbygg" loading="lazy" />
+    <div class="cat-overlay"></div>
+    <div class="cat-label">
+      <div class="cat-tag">Tilbygg</div>
+      <h3>Vinterhage, Sentrum</h3>
+      <p>40 m² innglasset tilbygg med gulvvarme.</p>
+    </div>
+  </div>
+  <div class="cat-card">
+    <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=900&q=80" alt="Renovert bad" loading="lazy" />
+    <div class="cat-overlay"></div>
+    <div class="cat-label">
+      <div class="cat-tag">Bad</div>
+      <h3>Baderehab, Åsane</h3>
+      <p>Full renovering med varmekabler og skreddersydd innredning.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROSESS -->
+<section class="process">
+  <div class="section-head" style="padding:0;">
+    <div class="eyebrow">Slik jobber vi</div>
+    <h2>Fra første samtale<br/>til overlevering</h2>
+  </div>
+  <div class="process-grid">
+    <div class="process-step">
+      <div class="process-num">01</div>
+      <h3>Befaring</h3>
+      <p>Vi kommer hjem til deg, ser på prosjektet og gir deg ærlige råd — helt uforpliktende.</p>
+    </div>
+    <div class="process-step">
+      <div class="process-num">02</div>
+      <h3>Tilbud</h3>
+      <p>Du får et fast pristilbud med tydelig spesifikasjon, uten skjulte kostnader.</p>
+    </div>
+    <div class="process-step">
+      <div class="process-num">03</div>
+      <h3>Utførelse</h3>
+      <p>Fagfolk med fagbrev utfører jobben, med jevnlig oppfølging og fremdriftsplan.</p>
+    </div>
+    <div class="process-step">
+      <div class="process-num">04</div>
+      <h3>Overlevering</h3>
+      <p>Vi går gjennom resultatet sammen med deg, og du får 10 års garanti på arbeidet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- OM OSS -->
+<div class="about" id="om-oss">
+  <div class="about-img">
+    <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=80" alt="Håndverker på jobb" loading="lazy" />
+  </div>
+  <div class="about-body">
+    <div class="eyebrow">Om oss</div>
+    <h2>Lokalt firma med<br/>solid håndverkstradisjon</h2>
+    <p>Nordvik Bygg er et familieeid byggmesterfirma med over 15 års erfaring. Vi er stolte av håndverket vårt og setter en ære i å levere presist arbeid til avtalt tid og pris.</p>
+    <div class="about-perks">
+      <div class="perk">
+        <div class="perk-dot"></div>
+        <div>
+          <h4>Fagbrev og sentral godkjenning</h4>
+          <p>Alle våre tømrere har fagbrev, og firmaet har sentral godkjenning.</p>
+        </div>
+      </div>
+      <div class="perk">
+        <div class="perk-dot"></div>
+        <div>
+          <h4>Fast pris, ingen overraskelser</h4>
+          <p>Du vet hva prosjektet koster før vi setter i gang.</p>
+        </div>
+      </div>
+      <div class="perk">
+        <div class="perk-dot"></div>
+        <div>
+          <h4>Én kontaktperson gjennom hele prosjektet</h4>
+          <p>Du slipper å forholde deg til mange ulike aktører.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FULLBLEED CTA -->
+<section class="cta-section">
+  <div class="cta-bg"></div>
+  <div class="cta-overlay"></div>
+  <div class="cta-content">
+    <h2>Klar for å <em>starte prosjektet?</em></h2>
+    <p>Book en uforpliktende befaring, så gir vi deg et fast tilbud innen få dager.</p>
+    <a href="#tilbud" class="btn-amber">Be om tilbud</a>
+  </div>
+</section>
+
+<!-- TILBUDSSKJEMA -->
+<section class="quote" id="tilbud">
+  <div class="eyebrow">Ta kontakt</div>
+  <h2 style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(2rem,4vw,3rem);line-height:1.1;margin-top:12px;">Be om et<br/>uforpliktende tilbud</h2>
+  <div class="quote-grid">
+    <div>
+      <div class="quote-info-card">
+        <div class="quote-info-header"><h3>📞 Kontaktinfo</h3></div>
+        <div class="quote-info-body">
+          <div class="contact-detail">
+            <div class="contact-icon">📍</div>
+            <div class="contact-text">
+              <strong>Adresse</strong>
+              <span>Verkstedveien 12<br/>5137 Nordvika</span>
+            </div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-icon">📱</div>
+            <div class="contact-text">
+              <strong>Telefon</strong>
+              <span>911 22 333</span>
+            </div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-icon">✉️</div>
+            <div class="contact-text">
+              <strong>E-post</strong>
+              <span>post@nordvikbygg.no</span>
+            </div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-icon">🕐</div>
+            <div class="contact-text">
+              <strong>Svartid</strong>
+              <span>Vi svarer på tilbudsforespørsler innen 24 timer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote-form">
+      <form id="quote-form">
+        <div class="form-row">
+          <div class="field">
+            <label for="navn">Navn *</label>
+            <input type="text" id="navn" name="navn" required placeholder="Ola Nordmann" />
+          </div>
+          <div class="field">
+            <label for="telefon">Telefon *</label>
+            <input type="tel" id="telefon" name="telefon" required placeholder="912 34 567" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="epost">E-post *</label>
+          <input type="email" id="epost" name="epost" required placeholder="ola@epost.no" />
+        </div>
+        <div class="field">
+          <label for="type">Type prosjekt *</label>
+          <select id="type" name="type" required>
+            <option value="" disabled selected>Velg type prosjekt</option>
+            <option value="nybygg">Nybygg</option>
+            <option value="tilbygg">Tilbygg / påbygg</option>
+            <option value="rehabilitering">Rehabilitering</option>
+            <option value="bad">Bad / våtrom</option>
+            <option value="annet">Annet</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="beskrivelse">Beskriv prosjektet</label>
+          <textarea id="beskrivelse" name="beskrivelse" placeholder="Fortell litt om hva du ønsker å få gjort..."></textarea>
+        </div>
+        <button type="submit" class="btn-amber">Send tilbudsforespørsel</button>
+      </form>
+      <div class="form-success" id="form-success">
+        <div class="check">✓</div>
+        <h3>Takk for din forespørsel!</h3>
+        <p>Dette er en demoside, så skjemaet sender ikke inn i praksis — men slik ville en besøkende fått bekreftelse med en gang. Vi tar normalt kontakt innen 24 timer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    Nordvik Bygg
+    <span>Tømrer & byggmesterfirma · Nordvika</span>
+  </div>
+  <p>© 2026 — Demoside laget av <a href="/">MHH Digital</a></p>
+</footer>
+
+<script>
+  document.getElementById('quote-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    this.style.display = 'none';
+    document.getElementById('form-success').style.display = 'block';
+  });
+</script>
+
+</body>
+</html>

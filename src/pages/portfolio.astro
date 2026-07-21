@@ -43,9 +43,29 @@ import Layout from '../layouts/Layout.astro';
 
       <!-- Nettsider -->
       <div id="content-nettsider" class="hidden">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center text-gray-500">
-          <div class="text-5xl mb-4">🌐</div>
-          <p>Nettsideprosjekter kommer snart.</p>
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+          <div class="p-8 md:p-10">
+            <span class="text-xs text-orange-400 font-semibold uppercase tracking-wider">Nettside</span>
+            <h2 class="text-2xl font-bold mt-1 mb-3">Nordvik Bygg – demo for håndverksbedrift</h2>
+            <p class="text-gray-400 mb-6 max-w-2xl">
+              En komplett demo-nettside for et fiktivt tømrer- og byggmesterfirma. Viser hvordan vi bygger
+              nettsider som selger: tjenesteoversikt, prosjektgalleri, tydelig prosessforklaring og et
+              innebygd tilbudsskjema som konverterer besøkende til henvendelser.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-8">
+              {['HTML/CSS', 'Responsivt design', 'Tilbudsskjema'].map(tag => (
+                <span class="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-md">{tag}</span>
+              ))}
+            </div>
+            <a
+              href="/demo-nordvik-bygg.html"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-3 rounded-xl transition-colors"
+            >
+              Se live demo →
+            </a>
+          </div>
         </div>
       </div>
 
