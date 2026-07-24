@@ -3,10 +3,13 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { getSupabase } from '../../lib/supabase';
 
 const sb = getSupabase();
+const year = new Date().getFullYear();
+
 const { count: invoiceCount } = await sb.from('invoices').select('*', { count: 'exact', head: true });
 const { count: customerCount } = await sb.from('customers').select('*', { count: 'exact', head: true });
 const { count: projectCount } = await sb.from('projects').select('*', { count: 'exact', head: true });
 
+// Utestående (sendt, ikke betalt)
 const { data: unpaid } = await sb
   .from('invoices')
   .select('id, invoice_lines(unit_price, quantity)')
@@ -16,12 +19,50 @@ const outstanding = (unpaid ?? []).reduce((sum: number, inv: any) => {
   const total = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
   return sum + total;
 }, 0);
+
+// Inntekter dette året (betalte fakturaer, inkl. MVA)
+const { data: paidThisYear } = await sb
+  .from('invoices')
+  .select('id, invoice_lines(unit_price, quantity)')
+  .eq('status', 'betalt')
+  .gte('created_at', `${year}-01-01`)
+  .lte('created_at', `${year}-12-31`);
+
+const incomeThisYear = (paidThisYear ?? []).reduce((sum: number, inv: any) => {
+  const net = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
+  return sum + net * 1.25;
+}, 0);
+
+// Utgifter dette året
+const { data: expensesThisYear } = await sb
+  .from('expenses')
+  .select('amount')
+  .gte('date', `${year}-01-01`)
+  .lte('date', `${year}-12-31`);
+
+const expensesTotal = (expensesThisYear ?? []).reduce((s: number, e: any) => s + e.amount, 0);
+const resultThisYear = incomeThisYear - expensesTotal;
+
+// Siste 5 fakturaer
+const { data: recentInvoices } = await sb
+  .from('invoices')
+  .select('id, invoice_number, status, created_at, customers(name)')
+  .order('created_at', { ascending: false })
+  .limit(5);
+
+const statusLabel: Record<string, string> = { kladd: 'Kladd', sendt: 'Sendt', betalt: 'Betalt' };
+const statusColor: Record<string, string> = {
+  kladd: 'text-gray-400 bg-gray-800',
+  sendt: 'text-yellow-400 bg-yellow-950',
+  betalt: 'text-green-400 bg-green-950',
+};
 ---
 
 <AdminLayout title="Oversikt">
   <h1 class="text-2xl font-bold mb-8">Oversikt</h1>
 
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+  <!-- Stats -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
     <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
       <p class="text-gray-400 text-sm mb-1">Fakturaer</p>
       <p class="text-3xl font-bold">{invoiceCount ?? 0}</p>
@@ -40,9 +81,56 @@ const outstanding = (unpaid ?? []).reduce((sum: number, inv: any) => {
     </div>
   </div>
 
+  <!-- Årsregnskap -->
+  <h2 class="text-base font-semibold text-gray-300 mb-4">{year} — Økonomi</h2>
+  <div class="grid grid-cols-3 gap-5 mb-10">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+      <p class="text-gray-400 text-sm mb-1">Inntekter (inkl. MVA)</p>
+      <p class="text-2xl font-bold text-green-400">{incomeThisYear.toLocaleString('nb-NO')} kr</p>
+    </div>
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+      <p class="text-gray-400 text-sm mb-1">Utgifter</p>
+      <p class="text-2xl font-bold text-red-400">{expensesTotal.toLocaleString('nb-NO')} kr</p>
+    </div>
+    <div class={`bg-gray-900 border rounded-2xl p-6 ${resultThisYear >= 0 ? 'border-green-800' : 'border-red-800'}`}>
+      <p class="text-gray-400 text-sm mb-1">Resultat</p>
+      <p class={`text-2xl font-bold ${resultThisYear >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+        {resultThisYear >= 0 ? '+' : ''}{resultThisYear.toLocaleString('nb-NO')} kr
+      </p>
+    </div>
+  </div>
+
+  <!-- Siste fakturaer -->
+  {(recentInvoices ?? []).length > 0 && (
+    <div class="mb-8">
+      <h2 class="text-base font-semibold text-gray-300 mb-4">Siste fakturaer</h2>
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+        <table class="w-full text-sm">
+          <tbody>
+            {recentInvoices!.map((inv: any) => (
+              <tr class="border-b border-gray-800 last:border-0 hover:bg-gray-800/50 transition-colors">
+                <td class="py-3 px-5">
+                  <a href={`/admin/fakturaer/${inv.id}`} class="font-medium hover:text-cyan-400 transition-colors">{inv.invoice_number}</a>
+                </td>
+                <td class="py-3 px-5 text-gray-400">{(inv.customers as any)?.name}</td>
+                <td class="py-3 px-5 text-right text-gray-400">{new Date(inv.created_at).toLocaleDateString('nb-NO')}</td>
+                <td class="py-3 px-5 text-right">
+                  <span class={`text-xs px-2.5 py-1 rounded-full font-medium ${statusColor[inv.status]}`}>{statusLabel[inv.status]}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )}
+
   <div class="flex gap-4">
     <a href="/admin/fakturaer/ny" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-3 rounded-xl transition-colors">
       + Ny faktura
+    </a>
+    <a href="/admin/regnskap/ny" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-6 py-3 rounded-xl transition-colors">
+      + Ny utgift
     </a>
     <a href="/admin/kunder/ny" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-6 py-3 rounded-xl transition-colors">
       + Ny kunde

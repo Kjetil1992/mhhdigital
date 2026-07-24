@@ -1,0 +1,132 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+const sb = getSupabase();
+const year = Number(Astro.url.searchParams.get('year') ?? new Date().getFullYear());
+
+const { data: expenses } = await sb
+  .from('expenses')
+  .select('*')
+  .gte('date', `${year}-01-01`)
+  .lte('date', `${year}-12-31`)
+  .order('date', { ascending: false });
+
+// Inntekter: betalte fakturaer dette året
+const { data: paidInvoices } = await sb
+  .from('invoices')
+  .select('id, invoice_lines(unit_price, quantity)')
+  .eq('status', 'betalt')
+  .gte('created_at', `${year}-01-01`)
+  .lte('created_at', `${year}-12-31`);
+
+const totalIncome = (paidInvoices ?? []).reduce((sum: number, inv: any) => {
+  const net = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
+  return sum + net * 1.25; // inkl. MVA
+}, 0);
+
+const totalExpenses = (expenses ?? []).reduce((s: number, e: any) => s + e.amount, 0);
+const result = totalIncome - totalExpenses;
+
+const categories: Record<string, string> = {
+  programvare: 'Programvare',
+  maskinvare: 'Maskinvare',
+  kontor: 'Kontor',
+  markedsforing: 'Markedsføring',
+  reise: 'Reise',
+  annet: 'Annet',
+};
+
+// Group expenses by month
+const byMonth: Record<number, number> = {};
+for (const e of expenses ?? []) {
+  const m = new Date(e.date).getMonth();
+  byMonth[m] = (byMonth[m] ?? 0) + e.amount;
+}
+---
+
+<AdminLayout title="Regnskap">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold">Regnskap</h1>
+      <p class="text-gray-400 text-sm mt-1">Oversikt over inntekter og utgifter</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href={`/admin/regnskap?year=${year - 1}`} class="text-gray-400 hover:text-white px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-500 text-sm transition-colors">← {year - 1}</a>
+      <span class="font-bold text-lg">{year}</span>
+      <a href={`/admin/regnskap?year=${year + 1}`} class="text-gray-400 hover:text-white px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-500 text-sm transition-colors">{year + 1} →</a>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="grid grid-cols-3 gap-5 mb-10">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+      <p class="text-gray-400 text-sm mb-1">Inntekter (inkl. MVA)</p>
+      <p class="text-3xl font-bold text-green-400">{totalIncome.toLocaleString('nb-NO')} kr</p>
+    </div>
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+      <p class="text-gray-400 text-sm mb-1">Utgifter</p>
+      <p class="text-3xl font-bold text-red-400">{totalExpenses.toLocaleString('nb-NO')} kr</p>
+    </div>
+    <div class={`bg-gray-900 border rounded-2xl p-6 ${result >= 0 ? 'border-green-800' : 'border-red-800'}`}>
+      <p class="text-gray-400 text-sm mb-1">Resultat</p>
+      <p class={`text-3xl font-bold ${result >= 0 ? 'text-green-400' : 'text-red-400'}`}>{result >= 0 ? '+' : ''}{result.toLocaleString('nb-NO')} kr</p>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-semibold">Utgifter {year}</h2>
+    <a href="/admin/regnskap/ny" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors">
+      + Ny utgift
+    </a>
+  </div>
+
+  {(expenses ?? []).length === 0 ? (
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center">
+      <p class="text-gray-500">Ingen utgifter registrert for {year}</p>
+      <a href="/admin/regnskap/ny" class="mt-4 inline-block bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">
+        + Legg til utgift
+      </a>
+    </div>
+  ) : (
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="border-b border-gray-800">
+          <tr>
+            <th class="text-left py-3 px-5 text-gray-400 font-medium">Dato</th>
+            <th class="text-left py-3 px-5 text-gray-400 font-medium">Beskrivelse</th>
+            <th class="text-left py-3 px-5 text-gray-400 font-medium">Kategori</th>
+            <th class="text-right py-3 px-5 text-gray-400 font-medium">Beløp</th>
+            <th class="py-3 px-5"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {(expenses ?? []).map((e: any) => (
+            <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
+              <td class="py-3 px-5 text-gray-400">{new Date(e.date).toLocaleDateString('nb-NO')}</td>
+              <td class="py-3 px-5 font-medium">{e.description}</td>
+              <td class="py-3 px-5">
+                <span class="bg-gray-800 text-gray-300 text-xs px-2.5 py-1 rounded-full">{categories[e.category] ?? e.category}</span>
+              </td>
+              <td class="py-3 px-5 text-right text-red-400 font-medium">{e.amount.toLocaleString('nb-NO')} kr</td>
+              <td class="py-3 px-5 text-right">
+                <form method="POST" action="/admin/regnskap/slett" onsubmit="return confirm('Slett denne utgiften?')">
+                  <input type="hidden" name="id" value={e.id} />
+                  <input type="hidden" name="year" value={year} />
+                  <button type="submit" class="text-gray-600 hover:text-red-400 transition-colors text-xs">Slett</button>
+                </form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot class="border-t-2 border-gray-700">
+          <tr>
+            <td colspan="3" class="py-3 px-5 text-gray-400 font-medium">Totalt</td>
+            <td class="py-3 px-5 text-right font-bold text-red-400">{totalExpenses.toLocaleString('nb-NO')} kr</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  )}
+</AdminLayout>
