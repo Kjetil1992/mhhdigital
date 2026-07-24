@@ -1,0 +1,22 @@
+import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
+import { g as addAttribute, i as renderComponent, m as maybeRenderHead, u as renderTemplate } from "./server_B_hu0jgv.mjs";
+import { t as createComponent } from "./compiler_uT6rBWMH.mjs";
+import { t as $$AdminLayout } from "./AdminLayout_CpPJQbno.mjs";
+import { t as getSupabase } from "./supabase_CcmGTioS.mjs";
+//#region src/pages/admin/kunder/index.astro
+var kunder_exports = /* @__PURE__ */ __exportAll({
+	default: () => $$Index,
+	file: () => $$file,
+	url: () => $$url
+});
+var $$Index = createComponent(async ($$result, $$props, $$slots) => {
+	const { data: customers } = await getSupabase().from("customers").select("*").order("name");
+	return renderTemplate`${renderComponent($$result, "AdminLayout", $$AdminLayout, { "title": "Kunder" }, { "default": ($$result) => renderTemplate`${maybeRenderHead($$result)}<div class="flex items-center justify-between mb-8"><h1 class="text-2xl font-bold">Kunder</h1><a href="/admin/kunder/ny" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">+ Ny kunde</a></div><div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">${!customers?.length ? renderTemplate`<p class="text-gray-500 text-center py-16">Ingen kunder ennå.</p>` : renderTemplate`<table class="w-full text-sm"><thead class="border-b border-gray-800"><tr><th class="text-left px-6 py-3 text-gray-400 font-medium">Navn</th><th class="text-left px-6 py-3 text-gray-400 font-medium">E-post</th><th class="text-left px-6 py-3 text-gray-400 font-medium">Org.nr</th><th class="px-6 py-3"></th></tr></thead><tbody>${customers.map((c) => renderTemplate`<tr class="border-b border-gray-800 last:border-0 hover:bg-gray-800/50"><td class="px-6 py-4 font-medium">${c.name}</td><td class="px-6 py-4 text-gray-400">${c.email}</td><td class="px-6 py-4 text-gray-400">${c.org_number ?? "—"}</td><td class="px-6 py-4 text-right"><a${addAttribute(`/admin/kunder/${c.id}`, "href")} class="text-cyan-400 hover:text-cyan-300 transition-colors">Rediger</a></td></tr>`)}</tbody></table>`}</div>` })}`;
+}, "/Users/kjetil/mhhdigital/src/pages/admin/kunder/index.astro", void 0);
+var $$file = "/Users/kjetil/mhhdigital/src/pages/admin/kunder/index.astro";
+var $$url = "/admin/kunder";
+//#endregion
+//#region \0virtual:astro:page:src/pages/admin/kunder/index@_@astro
+var page = () => kunder_exports;
+//#endregion
+export { page };
