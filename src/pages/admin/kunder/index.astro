@@ -3,6 +3,15 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getSupabase } from '../../../lib/supabase';
 
 const sb = getSupabase();
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  if (data.get('action') === 'delete') {
+    await sb.from('customers').delete().eq('id', data.get('id'));
+  }
+  return Astro.redirect('/admin/kunder');
+}
+
 const { data: customers } = await sb.from('customers').select('*').order('name');
 ---
 
@@ -34,7 +43,11 @@ const { data: customers } = await sb.from('customers').select('*').order('name')
               <td class="px-6 py-4 text-gray-400">{c.email}</td>
               <td class="px-6 py-4 text-gray-400">{c.org_number ?? '—'}</td>
               <td class="px-6 py-4 text-right">
-                <a href={`/admin/kunder/${c.id}`} class="text-cyan-400 hover:text-cyan-300 transition-colors">Rediger</a>
+                <form method="POST" class="inline" onsubmit="return confirm('Slett denne kunden?')">
+                  <input type="hidden" name="action" value="delete" />
+                  <input type="hidden" name="id" value={c.id} />
+                  <button type="submit" class="text-red-500 hover:text-red-400 transition-colors">Slett</button>
+                </form>
               </td>
             </tr>
           ))}

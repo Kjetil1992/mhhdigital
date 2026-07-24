@@ -3,6 +3,15 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getSupabase } from '../../../lib/supabase';
 
 const sb = getSupabase();
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  if (data.get('action') === 'delete') {
+    await sb.from('projects').delete().eq('id', data.get('id'));
+  }
+  return Astro.redirect('/admin/prosjekter');
+}
+
 const { data: projects } = await sb
   .from('projects')
   .select('*, customers(name)')
@@ -38,6 +47,7 @@ const statusColor: Record<string, string> = {
             <th class="text-left px-6 py-3 text-gray-400 font-medium">Prosjekt</th>
             <th class="text-left px-6 py-3 text-gray-400 font-medium">Kunde</th>
             <th class="text-left px-6 py-3 text-gray-400 font-medium">Status</th>
+            <th class="px-6 py-3"></th>
           </tr>
         </thead>
         <tbody>
@@ -47,6 +57,13 @@ const statusColor: Record<string, string> = {
               <td class="px-6 py-4 text-gray-400">{p.customers?.name ?? '—'}</td>
               <td class={`px-6 py-4 font-medium ${statusColor[p.status] ?? 'text-gray-400'}`}>
                 {statusLabel[p.status] ?? p.status}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <form method="POST" class="inline" onsubmit="return confirm('Slett dette prosjektet?')">
+                  <input type="hidden" name="action" value="delete" />
+                  <input type="hidden" name="id" value={p.id} />
+                  <button type="submit" class="text-red-500 hover:text-red-400 transition-colors text-sm">Slett</button>
+                </form>
               </td>
             </tr>
           ))}
