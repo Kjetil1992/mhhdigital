@@ -1,6 +1,9 @@
 ---
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getSupabase } from '../../../lib/supabase';
+import { generateKID } from '../../../lib/kid';
+
+const KONTONUMMER = '4214 06 74421';
 
 const { id } = Astro.params;
 const sb = getSupabase();
@@ -25,6 +28,7 @@ if (!inv) return Astro.redirect('/admin/fakturaer');
 
 const total = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
 const mva = total * 0.25;
+const kid = generateKID(inv.invoice_number);
 
 const statusLabel: Record<string, string> = { kladd: 'Kladd', sendt: 'Sendt', betalt: 'Betalt' };
 ---
@@ -107,6 +111,18 @@ const statusLabel: Record<string, string> = { kladd: 'Kladd', sendt: 'Sendt', be
         <div class="flex justify-end gap-8 font-bold text-base border-t border-gray-700 pt-2 mt-2">
           <span>Totalt</span>
           <span class="w-28 text-right text-cyan-400">{(total + mva).toLocaleString('nb-NO')} kr</span>
+        </div>
+      </div>
+
+      <!-- Betalingsinformasjon -->
+      <div class="mt-8 pt-6 border-t border-gray-700 grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Kontonummer</p>
+          <p class="font-mono font-semibold">{KONTONUMMER}</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">KID</p>
+          <p class="font-mono font-semibold">{kid}</p>
         </div>
       </div>
     </div>
