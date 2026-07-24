@@ -5,44 +5,39 @@ import { getSupabase } from '../../../lib/supabase';
 const sb = getSupabase();
 const year = Number(Astro.url.searchParams.get('year') ?? new Date().getFullYear());
 
-const { data: expenses } = await sb
-  .from('expenses')
-  .select('*')
-  .gte('date', `${year}-01-01`)
-  .lte('date', `${year}-12-31`)
-  .order('date', { ascending: false });
+// Slett-handlinger
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const action = data.get('action');
+  const id = data.get('id');
+  if (action === 'delete_expense') await sb.from('expenses').delete().eq('id', id);
+  if (action === 'delete_income') await sb.from('income').delete().eq('id', id);
+  return Astro.redirect(`/admin/regnskap?year=${year}`);
+}
 
-// Inntekter: betalte fakturaer dette året
-const { data: paidInvoices } = await sb
-  .from('invoices')
-  .select('id, invoice_lines(unit_price, quantity)')
-  .eq('status', 'betalt')
-  .gte('created_at', `${year}-01-01`)
-  .lte('created_at', `${year}-12-31`);
+const [{ data: expenses }, { data: manualIncome }, { data: paidInvoices }] = await Promise.all([
+  sb.from('expenses').select('*').gte('date', `${year}-01-01`).lte('date', `${year}-12-31`).order('date', { ascending: false }),
+  sb.from('income').select('*').gte('date', `${year}-01-01`).lte('date', `${year}-12-31`).order('date', { ascending: false }),
+  sb.from('invoices').select('id, invoice_lines(unit_price, quantity)').eq('status', 'betalt').gte('created_at', `${year}-01-01`).lte('created_at', `${year}-12-31`),
+]);
 
-const totalIncome = (paidInvoices ?? []).reduce((sum: number, inv: any) => {
+const invoiceIncome = (paidInvoices ?? []).reduce((sum: number, inv: any) => {
   const net = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
-  return sum + net * 1.25; // inkl. MVA
+  return sum + net * 1.25;
 }, 0);
 
+const manualIncomeTotal = (manualIncome ?? []).reduce((s: number, e: any) => s + e.amount, 0);
+const totalIncome = invoiceIncome + manualIncomeTotal;
 const totalExpenses = (expenses ?? []).reduce((s: number, e: any) => s + e.amount, 0);
 const result = totalIncome - totalExpenses;
 
-const categories: Record<string, string> = {
-  programvare: 'Programvare',
-  maskinvare: 'Maskinvare',
-  kontor: 'Kontor',
-  markedsforing: 'Markedsføring',
-  reise: 'Reise',
-  annet: 'Annet',
+const expenseCategories: Record<string, string> = {
+  programvare: 'Programvare', maskinvare: 'Maskinvare', kontor: 'Kontor',
+  markedsforing: 'Markedsføring', reise: 'Reise', annet: 'Annet',
 };
-
-// Group expenses by month
-const byMonth: Record<number, number> = {};
-for (const e of expenses ?? []) {
-  const m = new Date(e.date).getMonth();
-  byMonth[m] = (byMonth[m] ?? 0) + e.amount;
-}
+const incomeCategories: Record<string, string> = {
+  konsulent: 'Konsulentoppdrag', salg: 'Salg', tilskudd: 'Tilskudd', annet: 'Annet',
+};
 ---
 
 <AdminLayout title="Regnskap">
@@ -58,11 +53,13 @@ for (const e of expenses ?? []) {
     </div>
   </div>
 
-  <!-- Summary cards -->
+  <!-- Sammendrag -->
   <div class="grid grid-cols-3 gap-5 mb-10">
     <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-      <p class="text-gray-400 text-sm mb-1">Inntekter (inkl. MVA)</p>
+      <p class="text-gray-400 text-sm mb-1">Inntekter totalt</p>
       <p class="text-3xl font-bold text-green-400">{totalIncome.toLocaleString('nb-NO')} kr</p>
+      {invoiceIncome > 0 && <p class="text-gray-500 text-xs mt-1">Fakturaer: {invoiceIncome.toLocaleString('nb-NO')} kr</p>}
+      {manualIncomeTotal > 0 && <p class="text-gray-500 text-xs">Manuelt: {manualIncomeTotal.toLocaleString('nb-NO')} kr</p>}
     </div>
     <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
       <p class="text-gray-400 text-sm mb-1">Utgifter</p>
@@ -74,19 +71,65 @@ for (const e of expenses ?? []) {
     </div>
   </div>
 
+  <!-- Inntekter (manuelt) -->
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-semibold">Inntekter {year} <span class="text-gray-500 text-sm font-normal">(utenom fakturaer)</span></h2>
+    <a href="/admin/regnskap/ny-inntekt" class="bg-green-700 hover:bg-green-600 text-white font-bold px-4 py-2 rounded-xl text-sm transition-colors">+ Ny inntekt</a>
+  </div>
+
+  {(manualIncome ?? []).length === 0 ? (
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 text-center mb-8">
+      <p class="text-gray-500 text-sm">Ingen manuelle inntekter registrert for {year}</p>
+    </div>
+  ) : (
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden mb-8">
+      <table class="w-full text-sm">
+        <thead class="border-b border-gray-800">
+          <tr>
+            <th class="text-left py-3 px-5 text-gray-400 font-medium">Dato</th>
+            <th class="text-left py-3 px-5 text-gray-400 font-medium">Beskrivelse</th>
+            <th class="text-left py-3 px-5 text-gray-400 font-medium">Kategori</th>
+            <th class="text-right py-3 px-5 text-gray-400 font-medium">Beløp</th>
+            <th class="py-3 px-5"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {(manualIncome ?? []).map((e: any) => (
+            <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
+              <td class="py-3 px-5 text-gray-400">{new Date(e.date).toLocaleDateString('nb-NO')}</td>
+              <td class="py-3 px-5 font-medium">{e.description}</td>
+              <td class="py-3 px-5"><span class="bg-green-950 text-green-400 text-xs px-2.5 py-1 rounded-full">{incomeCategories[e.category] ?? e.category}</span></td>
+              <td class="py-3 px-5 text-right text-green-400 font-medium">{e.amount.toLocaleString('nb-NO')} kr</td>
+              <td class="py-3 px-5 text-right">
+                <form method="POST" class="inline" onsubmit="return confirm('Slett denne inntekten?')">
+                  <input type="hidden" name="action" value="delete_income" />
+                  <input type="hidden" name="id" value={e.id} />
+                  <button type="submit" class="text-gray-600 hover:text-red-400 transition-colors text-xs">Slett</button>
+                </form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot class="border-t-2 border-gray-700">
+          <tr>
+            <td colspan="3" class="py-3 px-5 text-gray-400 font-medium">Totalt</td>
+            <td class="py-3 px-5 text-right font-bold text-green-400">{manualIncomeTotal.toLocaleString('nb-NO')} kr</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  )}
+
+  <!-- Utgifter -->
   <div class="flex items-center justify-between mb-4">
     <h2 class="text-lg font-semibold">Utgifter {year}</h2>
-    <a href="/admin/regnskap/ny" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors">
-      + Ny utgift
-    </a>
+    <a href="/admin/regnskap/ny" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors">+ Ny utgift</a>
   </div>
 
   {(expenses ?? []).length === 0 ? (
-    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center">
-      <p class="text-gray-500">Ingen utgifter registrert for {year}</p>
-      <a href="/admin/regnskap/ny" class="mt-4 inline-block bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">
-        + Legg til utgift
-      </a>
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 text-center">
+      <p class="text-gray-500 text-sm">Ingen utgifter registrert for {year}</p>
     </div>
   ) : (
     <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
@@ -105,14 +148,12 @@ for (const e of expenses ?? []) {
             <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
               <td class="py-3 px-5 text-gray-400">{new Date(e.date).toLocaleDateString('nb-NO')}</td>
               <td class="py-3 px-5 font-medium">{e.description}</td>
-              <td class="py-3 px-5">
-                <span class="bg-gray-800 text-gray-300 text-xs px-2.5 py-1 rounded-full">{categories[e.category] ?? e.category}</span>
-              </td>
+              <td class="py-3 px-5"><span class="bg-gray-800 text-gray-300 text-xs px-2.5 py-1 rounded-full">{expenseCategories[e.category] ?? e.category}</span></td>
               <td class="py-3 px-5 text-right text-red-400 font-medium">{e.amount.toLocaleString('nb-NO')} kr</td>
               <td class="py-3 px-5 text-right">
-                <form method="POST" action="/admin/regnskap/slett" onsubmit="return confirm('Slett denne utgiften?')">
+                <form method="POST" class="inline" onsubmit="return confirm('Slett denne utgiften?')">
+                  <input type="hidden" name="action" value="delete_expense" />
                   <input type="hidden" name="id" value={e.id} />
-                  <input type="hidden" name="year" value={year} />
                   <button type="submit" class="text-gray-600 hover:text-red-400 transition-colors text-xs">Slett</button>
                 </form>
               </td>
