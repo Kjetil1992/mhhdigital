@@ -8,12 +8,18 @@ const KONTONUMMER = '4214 06 74421';
 const { id } = Astro.params;
 const sb = getSupabase();
 
-// Handle status update
+// Handle POST actions
 if (Astro.request.method === 'POST') {
   const data = await Astro.request.formData();
   const action = data.get('action');
   if (action === 'update_status') {
     await sb.from('invoices').update({ status: data.get('status') }).eq('id', id);
+    return Astro.redirect(`/admin/fakturaer/${id}`);
+  }
+  if (action === 'delete') {
+    await sb.from('invoice_lines').delete().eq('invoice_id', id);
+    await sb.from('invoices').delete().eq('id', id);
+    return Astro.redirect('/admin/fakturaer');
   }
   return Astro.redirect(`/admin/fakturaer/${id}`);
 }
@@ -44,6 +50,12 @@ const statusLabel: Record<string, string> = { kladd: 'Kladd', sendt: 'Sendt', be
         <a href={`/admin/fakturaer/${id}/print`} target="_blank" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
           🖨 PDF
         </a>
+        <form method="POST" onsubmit="return confirm('Slett denne fakturaen? Dette kan ikke angres.')">
+          <input type="hidden" name="action" value="delete" />
+          <button type="submit" class="border border-red-900 hover:border-red-700 text-red-400 hover:text-red-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
+            Slett
+          </button>
+        </form>
         <form method="POST" class="flex gap-2">
           <input type="hidden" name="action" value="update_status" />
           <select name="status" class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500">
