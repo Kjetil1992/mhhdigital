@@ -21,7 +21,8 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   }
 
   const total = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
-  const mva = total * 0.25;
+  const mvaRate = (inv.mva_rate ?? 0) / 100;
+  const mva = total * mvaRate;
   const kid = generateKID(inv.invoice_number);
 
   const linesHtml = (inv.invoice_lines ?? []).map((l: any) => `
@@ -59,7 +60,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   <div style="text-align:right;font-size:0.9rem;margin-bottom:32px">
     <div style="display:flex;justify-content:flex-end;gap:48px;padding:4px 0"><span style="color:#6b7280">Netto</span><span>${total.toLocaleString('nb-NO')} kr</span></div>
-    <div style="display:flex;justify-content:flex-end;gap:48px;padding:4px 0"><span style="color:#6b7280">MVA (25%)</span><span>${mva.toLocaleString('nb-NO')} kr</span></div>
+    ${mva > 0 ? `<div style="display:flex;justify-content:flex-end;gap:48px;padding:4px 0"><span style="color:#6b7280">MVA (${inv.mva_rate}%)</span><span>${mva.toLocaleString('nb-NO')} kr</span></div>` : ''}
     <div style="display:flex;justify-content:flex-end;gap:48px;padding:12px 0;border-top:2px solid #e5e7eb;font-weight:700;font-size:1rem"><span>Totalt å betale</span><span style="color:#0891b2">${(total + mva).toLocaleString('nb-NO')} kr</span></div>
   </div>
 

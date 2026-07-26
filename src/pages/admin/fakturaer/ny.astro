@@ -21,6 +21,7 @@ if (Astro.request.method === 'POST') {
     invoice_number,
     status: 'kladd',
     due_date: data.get('due_date') || null,
+    mva_rate: Number(data.get('mva_rate') ?? 0),
   }).select().single();
 
   // Insert lines
@@ -62,9 +63,18 @@ if (Astro.request.method === 'POST') {
             </select>
           </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1.5">Forfallsdato</label>
-          <input name="due_date" type="date" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+        <div class="grid grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Forfallsdato</label>
+            <input name="due_date" type="date" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">MVA</label>
+            <select name="mva_rate" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+              <option value="0">0% — Ikke MVA-pliktig</option>
+              <option value="25">25% — MVA</option>
+            </select>
+          </div>
         </div>
       </div>
 

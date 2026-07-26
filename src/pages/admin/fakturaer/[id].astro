@@ -33,7 +33,8 @@ const { data: inv } = await sb
 if (!inv) return Astro.redirect('/admin/fakturaer');
 
 const total = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
-const mva = total * 0.25;
+const mvaRate = (inv.mva_rate ?? 0) / 100;
+const mva = total * mvaRate;
 const kid = generateKID(inv.invoice_number);
 
 const statusLabel: Record<string, string> = { kladd: 'Kladd', sendt: 'Sendt', betalt: 'Betalt' };
@@ -130,10 +131,12 @@ const emailError = Astro.url.searchParams.get('error');
           <span class="text-gray-400">Netto</span>
           <span class="w-28 text-right">{total.toLocaleString('nb-NO')} kr</span>
         </div>
-        <div class="flex justify-end gap-8">
-          <span class="text-gray-400">MVA (25%)</span>
-          <span class="w-28 text-right">{mva.toLocaleString('nb-NO')} kr</span>
-        </div>
+        {mva > 0 && (
+          <div class="flex justify-end gap-8">
+            <span class="text-gray-400">MVA ({inv.mva_rate}%)</span>
+            <span class="w-28 text-right">{mva.toLocaleString('nb-NO')} kr</span>
+          </div>
+        )}
         <div class="flex justify-end gap-8 font-bold text-base border-t border-gray-700 pt-2 mt-2">
           <span>Totalt</span>
           <span class="w-28 text-right text-cyan-400">{(total + mva).toLocaleString('nb-NO')} kr</span>

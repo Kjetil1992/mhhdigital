@@ -16,7 +16,8 @@ const { data: inv } = await sb
 if (!inv) return Astro.redirect('/admin/fakturaer');
 
 const total = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
-const mva = total * 0.25;
+const mvaRate = (inv.mva_rate ?? 0) / 100;
+const mva = total * mvaRate;
 const kid = generateKID(inv.invoice_number);
 ---
 
@@ -106,7 +107,7 @@ const kid = generateKID(inv.invoice_number);
 
   <div class="totals">
     <div><span class="label-r">Netto</span><span>{total.toLocaleString('nb-NO')} kr</span></div>
-    <div><span class="label-r">MVA (25%)</span><span>{mva.toLocaleString('nb-NO')} kr</span></div>
+    {mva > 0 && <div><span class="label-r">MVA ({inv.mva_rate}%)</span><span>{mva.toLocaleString('nb-NO')} kr</span></div>}
     <div class="grand"><span>Totalt å betale</span><span>{(total + mva).toLocaleString('nb-NO')} kr</span></div>
   </div>
 
