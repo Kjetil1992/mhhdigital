@@ -44,12 +44,11 @@ const emailError = Astro.url.searchParams.get('error');
 
 <AdminLayout title={`Faktura ${inv.invoice_number}`}>
   <div class="max-w-2xl">
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h1 class="text-2xl font-bold">{inv.invoice_number}</h1>
-        <p class="text-gray-400 text-sm mt-1">Status: {statusLabel[inv.status]}</p>
-      </div>
-      <div class="flex gap-3">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold">{inv.invoice_number}</h1>
+      <p class="text-gray-400 text-sm mt-1">Status: {statusLabel[inv.status]}</p>
+    </div>
+    <div class="flex flex-wrap gap-3 mb-8">
         <a href={`/admin/fakturaer/${id}/print?auto=1`} target="_blank" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
           ⬇ Last ned PDF
         </a>
