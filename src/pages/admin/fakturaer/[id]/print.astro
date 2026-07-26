@@ -66,7 +66,17 @@ const kid = generateKID(inv.invoice_number);
     </button>
   </div>
   <script is:inline>
-    if (new URLSearchParams(location.search).get('auto') === '1') window.print();
+    function forceBlackAndPrint() {
+      document.querySelectorAll('*').forEach(function(el) {
+        if (!el.classList.contains('logo-accent') && !el.classList.contains('no-print')) {
+          el.style.setProperty('color', '#000', 'important');
+        }
+      });
+      window.print();
+    }
+    if (new URLSearchParams(location.search).get('auto') === '1') {
+      window.addEventListener('load', forceBlackAndPrint);
+    }
   </script>
 
   <div class="header">
