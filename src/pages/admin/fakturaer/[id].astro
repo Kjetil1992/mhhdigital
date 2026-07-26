@@ -50,8 +50,8 @@ const emailError = Astro.url.searchParams.get('error');
         <p class="text-gray-400 text-sm mt-1">Status: {statusLabel[inv.status]}</p>
       </div>
       <div class="flex gap-3">
-        <a href={`/admin/fakturaer/${id}/print`} target="_blank" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
-          🖨 PDF
+        <a href={`/admin/fakturaer/${id}/print?auto=1`} target="_blank" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
+          ⬇ Last ned PDF
         </a>
         {inv.customers?.email && (
           <form method="POST" action="/api/fakturaer/send-email" onsubmit={`return confirm('Send faktura til ${inv.customers.email}?')`}>

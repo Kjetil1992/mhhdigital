@@ -61,6 +61,9 @@ const kid = generateKID(inv.invoice_number);
       Skriv ut / Lagre som PDF
     </button>
   </div>
+  <script is:inline>
+    if (new URLSearchParams(location.search).get('auto') === '1') window.print();
+  </script>
 
   <div class="header">
     <div>
