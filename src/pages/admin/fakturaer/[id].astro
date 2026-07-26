@@ -53,14 +53,6 @@ const emailError = Astro.url.searchParams.get('error');
         <a href={`/admin/fakturaer/${id}/print?auto=1`} target="_blank" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
           ⬇ Last ned PDF
         </a>
-        {inv.customers?.email && (
-          <form method="POST" action="/api/fakturaer/send-email" onsubmit={`return confirm('Send faktura til ${inv.customers.email}?')`}>
-            <input type="hidden" name="invoice_id" value={id} />
-            <button type="submit" class="border border-gray-700 hover:border-cyan-700 text-gray-300 hover:text-cyan-400 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
-              📧 Send e-post
-            </button>
-          </form>
-        )}
         <form method="POST" onsubmit="return confirm('Slett denne fakturaen? Dette kan ikke angres.')">
           <input type="hidden" name="action" value="delete" />
           <button type="submit" class="border border-red-900 hover:border-red-700 text-red-400 hover:text-red-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
