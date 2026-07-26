@@ -1,0 +1,87 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+const { id } = Astro.params;
+const sb = getSupabase();
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const action = data.get('action');
+
+  if (action === 'save') {
+    await sb.from('posts').update({
+      title: data.get('title'),
+      slug: data.get('slug'),
+      body: data.get('body'),
+    }).eq('id', id);
+  }
+  if (action === 'publish') {
+    await sb.from('posts').update({ published: true, published_at: new Date().toISOString() }).eq('id', id);
+  }
+  if (action === 'unpublish') {
+    await sb.from('posts').update({ published: false }).eq('id', id);
+  }
+  return Astro.redirect(`/admin/innlegg/${id}`);
+}
+
+const { data: post } = await sb.from('posts').select('*').eq('id', id).single();
+if (!post) return Astro.redirect('/admin/innlegg');
+---
+
+<AdminLayout title={`Rediger: ${post.title}`}>
+  <div class="max-w-2xl">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-bold">Rediger innlegg</h1>
+      <div class="flex gap-3">
+        {post.published ? (
+          <>
+            <a href={`/blogg/${post.slug}`} target="_blank" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
+              Se innlegg ↗
+            </a>
+            <form method="POST">
+              <input type="hidden" name="action" value="unpublish" />
+              <button type="submit" class="border border-yellow-800 hover:border-yellow-600 text-yellow-400 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
+                Trekk tilbake
+              </button>
+            </form>
+          </>
+        ) : (
+          <form method="POST">
+            <input type="hidden" name="action" value="publish" />
+            <button type="submit" class="bg-green-700 hover:bg-green-600 text-white font-bold px-5 py-2 rounded-xl transition-colors text-sm">
+              Publiser
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+
+    {post.published && (
+      <div class="bg-green-950 border border-green-800 text-green-400 rounded-xl px-5 py-3 text-sm mb-6">
+        Publisert {new Date(post.published_at).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })}
+      </div>
+    )}
+
+    <form method="POST" class="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-5">
+      <input type="hidden" name="action" value="save" />
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">Tittel *</label>
+        <input name="title" required value={post.title} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">Slug (URL) *</label>
+        <input name="slug" required value={post.slug} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 font-mono text-sm" />
+        <p class="text-gray-500 text-xs mt-1">/blogg/{post.slug}</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">Innhold *</label>
+        <textarea name="body" required rows="14" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 resize-y">{post.body}</textarea>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre</button>
+        <a href="/admin/innlegg" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</a>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

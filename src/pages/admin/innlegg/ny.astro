@@ -1,0 +1,56 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+let errorMsg = '';
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const sb = getSupabase();
+  const { error } = await sb.from('posts').insert({
+    title: data.get('title'),
+    slug: data.get('slug'),
+    body: data.get('body'),
+    published: false,
+  });
+  if (!error) return Astro.redirect('/admin/innlegg');
+  errorMsg = error.message;
+}
+---
+
+<AdminLayout title="Nytt innlegg">
+  <div class="max-w-2xl">
+    <h1 class="text-2xl font-bold mb-8">Nytt innlegg</h1>
+    {errorMsg && <div class="bg-red-950 border border-red-800 text-red-300 rounded-xl p-4 mb-4 text-sm">{errorMsg}</div>}
+    <form method="POST" class="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-5">
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">Tittel *</label>
+        <input id="title" name="title" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">Slug (URL) *</label>
+        <input id="slug" name="slug" required placeholder="mitt-innlegg" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 font-mono text-sm" />
+        <p class="text-gray-500 text-xs mt-1">Vises i adressen: /blogg/<span id="slug-preview">mitt-innlegg</span></p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">Innhold *</label>
+        <textarea name="body" required rows="14" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 resize-y"></textarea>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre kladd</button>
+        <a href="/admin/innlegg" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</a>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+  const title = document.getElementById('title');
+  const slug = document.getElementById('slug');
+  const preview = document.getElementById('slug-preview');
+  title.addEventListener('input', () => {
+    const val = title.value.toLowerCase().replace(/æ/g,'ae').replace(/ø/g,'o').replace(/å/g,'a').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    slug.value = val;
+    preview.textContent = val || 'mitt-innlegg';
+  });
+  slug.addEventListener('input', () => { preview.textContent = slug.value || 'mitt-innlegg'; });
+</script>
