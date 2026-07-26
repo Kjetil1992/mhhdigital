@@ -4,11 +4,12 @@ import { getSupabase } from '../../lib/supabase';
 
 const { slug } = Astro.params;
 const sb = getSupabase();
+const now = new Date().toISOString();
 const { data: post } = await sb
   .from('posts')
   .select('*')
   .eq('slug', slug)
-  .eq('published', true)
+  .or(`published.eq.true,scheduled_at.lte.${now}`)
   .single();
 
 if (!post) return new Response(null, { status: 404 });
@@ -17,7 +18,7 @@ if (!post) return new Response(null, { status: 404 });
 <Layout title={post.title}>
   <article class="pt-32 pb-20 max-w-2xl mx-auto px-6">
     <a href="/blogg" class="text-gray-500 hover:text-gray-300 text-sm transition-colors mb-8 inline-block">← Tilbake til blogg</a>
-    <p class="text-xs text-gray-500 mb-3">{new Date(post.published_at).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+    <p class="text-xs text-gray-500 mb-3">{new Date(post.published_at ?? post.scheduled_at).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
     <h1 class="text-4xl font-bold mb-8">{post.title}</h1>
     <div class="text-gray-300 leading-relaxed whitespace-pre-wrap">{post.body}</div>
   </article>

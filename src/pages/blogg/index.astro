@@ -3,10 +3,11 @@ import Layout from '../../layouts/Layout.astro';
 import { getSupabase } from '../../lib/supabase';
 
 const sb = getSupabase();
+const now = new Date().toISOString();
 const { data: posts } = await sb
   .from('posts')
-  .select('title, slug, body, published_at')
-  .eq('published', true)
+  .select('title, slug, body, published_at, scheduled_at')
+  .or(`published.eq.true,scheduled_at.lte.${now}`)
   .order('published_at', { ascending: false });
 ---
 
@@ -21,7 +22,7 @@ const { data: posts } = await sb
       <div class="space-y-8">
         {posts.map((p: any) => (
           <a href={`/blogg/${p.slug}`} class="block group bg-gray-900/50 border border-gray-800 hover:border-cyan-800 rounded-2xl p-7 transition-colors">
-            <p class="text-xs text-gray-500 mb-2">{new Date(p.published_at).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <p class="text-xs text-gray-500 mb-2">{new Date(p.published_at ?? p.scheduled_at).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             <h2 class="text-xl font-bold mb-2 group-hover:text-cyan-400 transition-colors">{p.title}</h2>
             <p class="text-gray-400 text-sm leading-relaxed">{p.body.slice(0, 150)}{p.body.length > 150 ? '…' : ''}</p>
             <span class="inline-block mt-4 text-cyan-400 text-sm font-medium">Les mer →</span>
