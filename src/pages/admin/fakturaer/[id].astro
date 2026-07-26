@@ -49,7 +49,7 @@ const emailError = Astro.url.searchParams.get('error');
       <p class="text-gray-400 text-sm mt-1">Status: {statusLabel[inv.status]}</p>
     </div>
     <div class="flex flex-wrap gap-3 mb-8">
-        <a href={`/admin/fakturaer/${id}/print?auto=1`} target="_blank" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
+        <a href={`/admin/fakturaer/${id}/print?auto=1&t=${Date.now()}`} target="_blank" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
           ⬇ Last ned PDF
         </a>
         <form method="POST" onsubmit="return confirm('Slett denne fakturaen? Dette kan ikke angres.')">
