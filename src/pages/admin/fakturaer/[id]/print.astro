@@ -15,6 +15,9 @@ const { data: inv } = await sb
 
 if (!inv) return Astro.redirect('/admin/fakturaer');
 
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+Astro.response.headers.set('Pragma', 'no-cache');
+
 const total = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
 const mvaRate = (inv.mva_rate ?? 0) / 100;
 const mva = total * mvaRate;
