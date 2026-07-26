@@ -45,9 +45,10 @@ const S = {
   <title>Faktura {inv.invoice_number}</title>
   <style is:global>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    @page { margin: 0; size: A4; }
     @media print {
       .no-print { display: none !important; }
-      body { padding: 20px !important; }
+      body { padding: 15mm !important; }
     }
   </style>
 </head>
