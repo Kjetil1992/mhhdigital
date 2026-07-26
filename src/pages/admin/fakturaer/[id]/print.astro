@@ -27,38 +27,40 @@ const kid = generateKID(inv.invoice_number);
   <meta charset="UTF-8" />
   <title>Faktura {inv.invoice_number}</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #000; padding: 60px; max-width: 800px; margin: 0 auto; }
+    * { box-sizing: border-box; margin: 0; padding: 0; color: #000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    body { padding: 60px; max-width: 800px; margin: 0 auto; background: #fff; }
+    .no-print { background: #f3f4f6; padding: 12px 24px; margin: -60px -60px 40px; display: flex; justify-content: flex-end; }
     .header { display: flex; justify-content: space-between; margin-bottom: 48px; }
     .logo { font-size: 1.5rem; font-weight: 700; }
-    .logo span { color: #0891b2; }
-    .meta { text-align: right; color: #000; font-size: 0.9rem; }
-    .meta h2 { color: #000; font-size: 1.2rem; margin-bottom: 4px; }
+    .logo-accent { color: #0891b2; }
+    .contact { font-size: 0.85rem; margin-top: 4px; line-height: 1.6; }
+    .meta { text-align: right; font-size: 0.9rem; line-height: 1.8; }
+    .meta h2 { font-size: 1.3rem; font-weight: 800; letter-spacing: 0.05em; }
+    .section-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 4px; }
     .bill-to { margin-bottom: 40px; }
-    .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #000; font-weight: 600; margin-bottom: 6px; }
-    .bill-to p { font-size: 0.9rem; line-height: 1.6; color: #000; }
-    .bill-to strong { color: #000; font-size: 1rem; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 0.9rem; }
-    th { text-align: left; padding: 8px 0; border-bottom: 2px solid #000; color: #000; font-weight: 700; }
-    th:last-child, td:last-child { text-align: right; }
-    th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3) { text-align: right; }
-    td { padding: 12px 0; border-bottom: 1px solid #ccc; color: #000; }
-    .totals { text-align: right; font-size: 0.9rem; }
-    .totals div { display: flex; justify-content: flex-end; gap: 48px; padding: 4px 0; }
-    .totals .label-r { color: #000; }
-    .totals .grand { font-weight: 700; font-size: 1.1rem; border-top: 2px solid #000; padding-top: 12px; margin-top: 8px; color: #0891b2; }
-    .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #ccc; font-size: 0.8rem; color: #000; text-align: center; }
+    .bill-to .name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .bill-to .detail { font-size: 0.9rem; line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 0.9rem; }
+    th { text-align: left; padding: 8px 0; border-top: 2px solid #000; border-bottom: 2px solid #000; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    th:not(:first-child), td:not(:first-child) { text-align: right; }
+    td { padding: 10px 0; border-bottom: 1px solid #ccc; }
+    .totals { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 0.9rem; margin-bottom: 40px; }
+    .totals-row { display: flex; gap: 48px; }
+    .totals-row.grand { font-weight: 800; font-size: 1rem; border-top: 2px solid #000; padding-top: 10px; margin-top: 6px; }
+    .payment { border: 2px solid #000; padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+    .payment-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 6px; }
+    .payment-value { font-weight: 700; font-size: 1rem; font-family: monospace; }
+    .payment-value.amount { font-size: 1.1rem; font-weight: 800; font-family: inherit; }
+    .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #ccc; font-size: 0.8rem; text-align: center; }
     @media print {
-      body { padding: 0; }
+      body { padding: 20px; }
       .no-print { display: none; }
-      * { color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .logo span { color: #0891b2 !important; }
     }
   </style>
 </head>
 <body>
 
-  <div class="no-print" style="background:#f3f4f6;padding:12px 24px;margin:-60px -60px 40px;display:flex;justify-content:flex-end;">
+  <div class="no-print">
     <button onclick="window.print()" style="background:#0891b2;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
       Skriv ut / Lagre som PDF
     </button>
@@ -69,24 +71,28 @@ const kid = generateKID(inv.invoice_number);
 
   <div class="header">
     <div>
-      <div class="logo">MHH<span>Digital</span></div>
-      <p style="color:#000;font-size:0.85rem;margin-top:4px;">kjetil@mhhdigital.no</p>
-      <p style="color:#000;font-size:0.85rem;">www.mhhdigital.no</p>
+      <div class="logo">MHH<span class="logo-accent">Digital</span></div>
+      <div class="contact">
+        kjetil@mhhdigital.no<br/>
+        www.mhhdigital.no
+      </div>
     </div>
     <div class="meta">
       <h2>FAKTURA</h2>
-      <p>{inv.invoice_number}</p>
-      {inv.due_date && <p>Forfall: {new Date(inv.due_date).toLocaleDateString('nb-NO')}</p>}
-      <p>Dato: {new Date(inv.created_at).toLocaleDateString('nb-NO')}</p>
+      <div>{inv.invoice_number}</div>
+      <div>Dato: {new Date(inv.created_at).toLocaleDateString('nb-NO')}</div>
+      {inv.due_date && <div>Forfall: {new Date(inv.due_date).toLocaleDateString('nb-NO')}</div>}
     </div>
   </div>
 
   <div class="bill-to">
-    <p class="label">Faktureres til</p>
-    <strong>{inv.customers?.name}</strong>
-    {inv.customers?.email && <p>{inv.customers.email}</p>}
-    {inv.customers?.address && <p style="white-space:pre-line">{inv.customers.address}</p>}
-    {inv.customers?.org_number && <p>Org.nr: {inv.customers.org_number}</p>}
+    <div class="section-label">Faktureres til</div>
+    <div class="name">{inv.customers?.name}</div>
+    <div class="detail">
+      {inv.customers?.email && <div>{inv.customers.email}</div>}
+      {inv.customers?.address && <div style="white-space:pre-line">{inv.customers.address}</div>}
+      {inv.customers?.org_number && <div>Org.nr: {inv.customers.org_number}</div>}
+    </div>
   </div>
 
   <table>
@@ -111,24 +117,23 @@ const kid = generateKID(inv.invoice_number);
   </table>
 
   <div class="totals">
-    <div><span class="label-r">Netto</span><span>{total.toLocaleString('nb-NO')} kr</span></div>
-    {mva > 0 && <div><span class="label-r">MVA ({inv.mva_rate}%)</span><span>{mva.toLocaleString('nb-NO')} kr</span></div>}
-    <div class="grand"><span>Totalt å betale</span><span>{(total + mva).toLocaleString('nb-NO')} kr</span></div>
+    <div class="totals-row"><span>Netto</span><span>{total.toLocaleString('nb-NO')} kr</span></div>
+    {mva > 0 && <div class="totals-row"><span>MVA ({inv.mva_rate}%)</span><span>{mva.toLocaleString('nb-NO')} kr</span></div>}
+    <div class="totals-row grand"><span>Totalt å betale</span><span>{(total + mva).toLocaleString('nb-NO')} kr</span></div>
   </div>
 
-  <!-- Betalingsinformasjon -->
-  <div style="margin-top:40px;padding-top:24px;border-top:2px solid #000;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;font-size:0.9rem;">
+  <div class="payment">
     <div>
-      <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#000;font-weight:700;margin-bottom:6px;">Kontonummer</p>
-      <p style="font-family:monospace;font-weight:700;color:#000;font-size:1rem;">{KONTONUMMER}</p>
+      <div class="payment-label">Kontonummer</div>
+      <div class="payment-value">{KONTONUMMER}</div>
     </div>
     <div>
-      <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#000;font-weight:700;margin-bottom:6px;">KID</p>
-      <p style="font-family:monospace;font-weight:700;color:#000;font-size:1rem;">{kid}</p>
+      <div class="payment-label">KID</div>
+      <div class="payment-value">{kid}</div>
     </div>
     <div>
-      <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#000;font-weight:700;margin-bottom:6px;">Beløp å betale</p>
-      <p style="font-weight:800;color:#000;font-size:1.1rem;">{(total + mva).toLocaleString('nb-NO')} kr</p>
+      <div class="payment-label">Beløp å betale</div>
+      <div class="payment-value amount">{(total + mva).toLocaleString('nb-NO')} kr</div>
     </div>
   </div>
 
