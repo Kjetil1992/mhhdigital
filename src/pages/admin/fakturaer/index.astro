@@ -3,16 +3,13 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getSupabase } from '../../../lib/supabase';
 
 const sb = getSupabase();
-const { data: invoices } = await sb
-  .from('invoices')
-  .select('*, customers(name), invoice_lines(unit_price, quantity)')
-  .order('created_at', { ascending: false });
+const statusFilter = Astro.url.searchParams.get('status') ?? '';
 
-const statusLabel: Record<string, string> = {
-  kladd: 'Kladd',
-  sendt: 'Sendt',
-  betalt: 'Betalt',
-};
+let query = sb.from('invoices').select('*, customers(name), invoice_lines(unit_price, quantity)').order('created_at', { ascending: false });
+if (statusFilter) query = query.eq('status', statusFilter);
+const { data: invoices } = await query;
+
+const statusLabel: Record<string, string> = { kladd: 'Kladd', sendt: 'Sendt', betalt: 'Betalt' };
 const statusColor: Record<string, string> = {
   kladd: 'text-gray-400 bg-gray-800',
   sendt: 'text-yellow-400 bg-yellow-950',
@@ -22,19 +19,38 @@ const statusColor: Record<string, string> = {
 function total(lines: any[]) {
   return (lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
 }
+
+const tabs = [
+  { label: 'Alle', value: '' },
+  { label: 'Kladd', value: 'kladd' },
+  { label: 'Sendt', value: 'sendt' },
+  { label: 'Betalt', value: 'betalt' },
+];
 ---
 
 <AdminLayout title="Fakturaer">
-  <div class="flex items-center justify-between mb-8">
+  <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold">Fakturaer</h1>
     <a href="/admin/fakturaer/ny" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">
       + Ny faktura
     </a>
   </div>
 
+  <!-- Filterfaner -->
+  <div class="flex gap-2 mb-6">
+    {tabs.map(tab => (
+      <a
+        href={tab.value ? `/admin/fakturaer?status=${tab.value}` : '/admin/fakturaer'}
+        class={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${statusFilter === tab.value ? 'bg-cyan-500 text-gray-950' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
+      >
+        {tab.label}
+      </a>
+    ))}
+  </div>
+
   <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
     {!invoices?.length ? (
-      <p class="text-gray-500 text-center py-16">Ingen fakturaer ennå.</p>
+      <p class="text-gray-500 text-center py-16">Ingen fakturaer{statusFilter ? ` med status «${statusLabel[statusFilter]}»` : ''} ennå.</p>
     ) : (
       <table class="w-full text-sm">
         <thead class="border-b border-gray-800">

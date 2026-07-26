@@ -37,6 +37,8 @@ const mva = total * 0.25;
 const kid = generateKID(inv.invoice_number);
 
 const statusLabel: Record<string, string> = { kladd: 'Kladd', sendt: 'Sendt', betalt: 'Betalt' };
+const sent = Astro.url.searchParams.get('sent') === '1';
+const emailError = Astro.url.searchParams.get('error');
 ---
 
 <AdminLayout title={`Faktura ${inv.invoice_number}`}>
@@ -50,6 +52,14 @@ const statusLabel: Record<string, string> = { kladd: 'Kladd', sendt: 'Sendt', be
         <a href={`/admin/fakturaer/${id}/print`} target="_blank" class="border border-gray-700 hover:border-gray-500 text-gray-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
           🖨 PDF
         </a>
+        {inv.customers?.email && (
+          <form method="POST" action="/api/fakturaer/send-email" onsubmit={`return confirm('Send faktura til ${inv.customers.email}?')`}>
+            <input type="hidden" name="invoice_id" value={id} />
+            <button type="submit" class="border border-gray-700 hover:border-cyan-700 text-gray-300 hover:text-cyan-400 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
+              📧 Send e-post
+            </button>
+          </form>
+        )}
         <form method="POST" onsubmit="return confirm('Slett denne fakturaen? Dette kan ikke angres.')">
           <input type="hidden" name="action" value="delete" />
           <button type="submit" class="border border-red-900 hover:border-red-700 text-red-400 hover:text-red-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
@@ -67,6 +77,10 @@ const statusLabel: Record<string, string> = { kladd: 'Kladd', sendt: 'Sendt', be
         </form>
       </div>
     </div>
+
+    {sent && <div class="bg-green-950 border border-green-800 text-green-400 rounded-xl px-5 py-3 text-sm mb-6">Faktura sendt til {inv.customers?.email}</div>}
+    {emailError === 'send-failed' && <div class="bg-red-950 border border-red-800 text-red-300 rounded-xl px-5 py-3 text-sm mb-6">Kunne ikke sende e-post. Sjekk at RESEND_API_KEY er satt i Vercel.</div>}
+    {emailError === 'no-email' && <div class="bg-red-950 border border-red-800 text-red-300 rounded-xl px-5 py-3 text-sm mb-6">Kunden mangler e-postadresse.</div>}
 
     <!-- Invoice preview -->
     <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">

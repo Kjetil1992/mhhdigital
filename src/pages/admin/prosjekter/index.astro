@@ -58,7 +58,8 @@ const statusColor: Record<string, string> = {
               <td class={`px-6 py-4 font-medium ${statusColor[p.status] ?? 'text-gray-400'}`}>
                 {statusLabel[p.status] ?? p.status}
               </td>
-              <td class="px-6 py-4 text-right">
+              <td class="px-6 py-4 text-right flex items-center justify-end gap-4">
+                <a href={`/admin/prosjekter/${p.id}`} class="text-cyan-400 hover:text-cyan-300 transition-colors text-sm">Rediger</a>
                 <form method="POST" class="inline" onsubmit="return confirm('Slett dette prosjektet?')">
                   <input type="hidden" name="action" value="delete" />
                   <input type="hidden" name="id" value={p.id} />

@@ -18,8 +18,24 @@ if (Astro.request.method === 'POST') {
 const [{ data: expenses }, { data: manualIncome }, { data: paidInvoices }] = await Promise.all([
   sb.from('expenses').select('*').gte('date', `${year}-01-01`).lte('date', `${year}-12-31`).order('date', { ascending: false }),
   sb.from('income').select('*').gte('date', `${year}-01-01`).lte('date', `${year}-12-31`).order('date', { ascending: false }),
-  sb.from('invoices').select('id, invoice_lines(unit_price, quantity)').eq('status', 'betalt').gte('created_at', `${year}-01-01`).lte('created_at', `${year}-12-31`),
+  sb.from('invoices').select('id, created_at, invoice_lines(unit_price, quantity)').eq('status', 'betalt').gte('created_at', `${year}-01-01`).lte('created_at', `${year}-12-31`),
 ]);
+
+// MVA per kvartal
+const quarters = [
+  { label: 'Q1 (jan–mar)', months: [0, 1, 2] },
+  { label: 'Q2 (apr–jun)', months: [3, 4, 5] },
+  { label: 'Q3 (jul–sep)', months: [6, 7, 8] },
+  { label: 'Q4 (okt–des)', months: [9, 10, 11] },
+];
+const vatByQuarter = quarters.map(q => {
+  const net = (paidInvoices ?? [])
+    .filter((inv: any) => q.months.includes(new Date(inv.created_at).getMonth()))
+    .reduce((sum: number, inv: any) => {
+      return sum + (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
+    }, 0);
+  return { label: q.label, net, mva: net * 0.25, total: net * 1.25 };
+});
 
 const invoiceIncome = (paidInvoices ?? []).reduce((sum: number, inv: any) => {
   const net = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
@@ -170,4 +186,37 @@ const incomeCategories: Record<string, string> = {
       </table>
     </div>
   )}
+
+  <!-- MVA-oversikt -->
+  <h2 class="text-lg font-semibold mt-10 mb-4">MVA-oversikt {year} <span class="text-gray-500 text-sm font-normal">(fra betalte fakturaer)</span></h2>
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="border-b border-gray-800">
+        <tr>
+          <th class="text-left py-3 px-5 text-gray-400 font-medium">Periode</th>
+          <th class="text-right py-3 px-5 text-gray-400 font-medium">Netto (eks. MVA)</th>
+          <th class="text-right py-3 px-5 text-gray-400 font-medium">MVA (25%)</th>
+          <th class="text-right py-3 px-5 text-gray-400 font-medium">Totalt inkl. MVA</th>
+        </tr>
+      </thead>
+      <tbody>
+        {vatByQuarter.map(q => (
+          <tr class="border-b border-gray-800 last:border-0">
+            <td class="py-3 px-5 font-medium">{q.label}</td>
+            <td class="py-3 px-5 text-right text-gray-300">{q.net.toLocaleString('nb-NO')} kr</td>
+            <td class="py-3 px-5 text-right text-yellow-400 font-medium">{q.mva.toLocaleString('nb-NO')} kr</td>
+            <td class="py-3 px-5 text-right text-gray-300">{q.total.toLocaleString('nb-NO')} kr</td>
+          </tr>
+        ))}
+      </tbody>
+      <tfoot class="border-t-2 border-gray-700">
+        <tr>
+          <td class="py-3 px-5 font-medium text-gray-400">Årssum</td>
+          <td class="py-3 px-5 text-right font-bold">{vatByQuarter.reduce((s, q) => s + q.net, 0).toLocaleString('nb-NO')} kr</td>
+          <td class="py-3 px-5 text-right font-bold text-yellow-400">{vatByQuarter.reduce((s, q) => s + q.mva, 0).toLocaleString('nb-NO')} kr</td>
+          <td class="py-3 px-5 text-right font-bold">{vatByQuarter.reduce((s, q) => s + q.total, 0).toLocaleString('nb-NO')} kr</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
 </AdminLayout>
