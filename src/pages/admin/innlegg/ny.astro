@@ -26,24 +26,24 @@ if (Astro.request.method === 'POST') {
     <form method="POST" class="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-5">
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Tittel *</label>
-        <input id="title" name="title" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500" />
+        <input id="title" name="title" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Slug (URL) *</label>
-        <input id="slug" name="slug" required placeholder="mitt-innlegg" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 font-mono text-sm" />
+        <input id="slug" name="slug" required placeholder="mitt-innlegg" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 font-mono text-sm" />
         <p class="text-gray-500 text-xs mt-1">Vises i adressen: /blogg/<span id="slug-preview">mitt-innlegg</span></p>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Innhold *</label>
-        <textarea name="body" required rows="14" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 resize-y"></textarea>
+        <textarea name="body" required rows="14" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 resize-y"></textarea>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Planlagt publisering <span class="text-gray-500 font-normal">(valgfritt)</span></label>
-        <input name="scheduled_at" type="datetime-local" class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500" />
+        <input name="scheduled_at" type="datetime-local" class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
         <p class="text-gray-500 text-xs mt-1">Innlegget publiseres automatisk på valgt tidspunkt</p>
       </div>
       <div class="flex gap-3 pt-2">
-        <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre kladd</button>
+        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre kladd</button>
         <a href="/admin/innlegg" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</a>
       </div>
     </form>

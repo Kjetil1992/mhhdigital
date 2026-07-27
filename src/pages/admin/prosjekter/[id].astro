@@ -33,11 +33,11 @@ if (!project) return Astro.redirect('/admin/prosjekter');
     <form method="POST" class="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-5">
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Prosjektnavn *</label>
-        <input name="name" required value={project.name} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500" />
+        <input name="name" required value={project.name} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Kunde</label>
-        <select name="customer_id" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+        <select name="customer_id" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
           <option value="">— Ingen kunde —</option>
           {(customers ?? []).map((c: any) => (
             <option value={c.id} selected={project.customer_id === c.id}>{c.name}</option>
@@ -46,18 +46,18 @@ if (!project) return Astro.redirect('/admin/prosjekter');
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Beskrivelse</label>
-        <textarea name="description" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 resize-none">{project.description}</textarea>
+        <textarea name="description" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 resize-none">{project.description}</textarea>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Status *</label>
-        <select name="status" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+        <select name="status" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
           <option value="aktiv" selected={project.status === 'aktiv'}>Aktiv</option>
           <option value="pause" selected={project.status === 'pause'}>Pause</option>
           <option value="fullfort" selected={project.status === 'fullfort'}>Fullført</option>
         </select>
       </div>
       <div class="flex gap-3 pt-2">
-        <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre</button>
+        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre</button>
         <a href="/admin/prosjekter" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</a>
       </div>
     </form>

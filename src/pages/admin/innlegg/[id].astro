@@ -82,24 +82,24 @@ const scheduledValue = post.scheduled_at
       <input type="hidden" name="action" value="save" />
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Tittel *</label>
-        <input name="title" required value={post.title} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500" />
+        <input name="title" required value={post.title} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Slug (URL) *</label>
-        <input name="slug" required value={post.slug} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 font-mono text-sm" />
+        <input name="slug" required value={post.slug} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 font-mono text-sm" />
         <p class="text-gray-500 text-xs mt-1">/blogg/{post.slug}</p>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Innhold *</label>
-        <textarea name="body" required rows="14" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 resize-y">{post.body}</textarea>
+        <textarea name="body" required rows="14" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 resize-y">{post.body}</textarea>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1.5">Planlagt publisering <span class="text-gray-500 font-normal">(valgfritt)</span></label>
-        <input name="scheduled_at" type="datetime-local" value={scheduledValue} class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500" />
+        <input name="scheduled_at" type="datetime-local" value={scheduledValue} class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
         <p class="text-gray-500 text-xs mt-1">La stå tom for å beholde som kladd. Innlegget publiseres automatisk på valgt tidspunkt.</p>
       </div>
       <div class="flex gap-3 pt-2">
-        <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre</button>
+        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre</button>
         <a href="/admin/innlegg" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</a>
       </div>
     </form>

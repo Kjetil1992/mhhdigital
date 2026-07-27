@@ -50,14 +50,14 @@ if (Astro.request.method === 'POST') {
         <div class="grid grid-cols-2 gap-5">
           <div>
             <label class="block text-sm font-medium text-gray-300 mb-1.5">Kunde *</label>
-            <select name="customer_id" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+            <select name="customer_id" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
               <option value="">— Velg kunde —</option>
               {customers?.map((c: any) => <option value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-300 mb-1.5">Prosjekt</label>
-            <select name="project_id" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+            <select name="project_id" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
               <option value="">— Velg prosjekt —</option>
               {projects?.map((p: any) => <option value={p.id}>{p.name}</option>)}
             </select>
@@ -66,11 +66,11 @@ if (Astro.request.method === 'POST') {
         <div class="grid grid-cols-2 gap-5">
           <div>
             <label class="block text-sm font-medium text-gray-300 mb-1.5">Forfallsdato</label>
-            <input name="due_date" type="date" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500" />
+            <input name="due_date" type="date" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-300 mb-1.5">MVA</label>
-            <select name="mva_rate" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+            <select name="mva_rate" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
               <option value="0">0% — Ikke MVA-pliktig</option>
               <option value="25">25% — MVA</option>
             </select>
@@ -83,17 +83,17 @@ if (Astro.request.method === 'POST') {
         <h2 class="font-bold mb-4">Linjer</h2>
         <div id="lines" class="space-y-3">
           <div class="grid grid-cols-12 gap-2 items-center">
-            <input name="desc" placeholder="Beskrivelse" required class="col-span-6 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500" />
-            <input name="qty" type="number" placeholder="Ant." min="1" value="1" class="col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500" />
-            <input name="price" type="number" placeholder="Pris" min="0" class="col-span-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500" />
+            <input name="desc" placeholder="Beskrivelse" required class="col-span-6 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+            <input name="qty" type="number" placeholder="Ant." min="1" value="1" class="col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+            <input name="price" type="number" placeholder="Pris" min="0" class="col-span-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
             <div class="col-span-1"></div>
           </div>
         </div>
-        <button type="button" id="add-line" class="mt-4 text-sm text-emerald-400 hover:text-emerald-300 transition-colors">+ Legg til linje</button>
+        <button type="button" id="add-line" class="mt-4 text-sm text-cyan-400 hover:text-cyan-300 transition-colors">+ Legg til linje</button>
       </div>
 
       <div class="flex gap-3">
-        <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Opprett faktura</button>
+        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Opprett faktura</button>
         <a href="/admin/fakturaer" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</a>
       </div>
     </form>
@@ -106,9 +106,9 @@ if (Astro.request.method === 'POST') {
     const row = document.createElement('div');
     row.className = 'grid grid-cols-12 gap-2 items-center';
     row.innerHTML = `
-      <input name="desc" placeholder="Beskrivelse" required class="col-span-6 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500" />
-      <input name="qty" type="number" placeholder="Ant." min="1" value="1" class="col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500" />
-      <input name="price" type="number" placeholder="Pris" min="0" class="col-span-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500" />
+      <input name="desc" placeholder="Beskrivelse" required class="col-span-6 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+      <input name="qty" type="number" placeholder="Ant." min="1" value="1" class="col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+      <input name="price" type="number" placeholder="Pris" min="0" class="col-span-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
       <button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-gray-600 hover:text-red-400 transition-colors text-lg">×</button>
     `;
     container.appendChild(row);

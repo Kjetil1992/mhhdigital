@@ -6,7 +6,7 @@ import Layout from '../layouts/Layout.astro';
 
   <section class="pt-36 pb-16 px-6 text-center">
     <div class="max-w-2xl mx-auto">
-      <span class="text-emerald-400 text-sm font-semibold tracking-widest uppercase">Arbeidet vårt</span>
+      <span class="text-cyan-400 text-sm font-semibold tracking-widest uppercase">Arbeidet vårt</span>
       <h1 class="text-4xl md:text-5xl font-extrabold mt-3 mb-4">Portfolio</h1>
       <p class="text-gray-400 text-lg">Et utvalg av prosjekter vi har levert.</p>
     </div>
@@ -20,7 +20,7 @@ import Layout from '../layouts/Layout.astro';
         <button
           id="tab-apper"
           onclick="showTab('apper')"
-          class="tab-btn px-6 py-2 rounded-lg font-semibold text-sm transition-colors bg-emerald-500 text-gray-950"
+          class="tab-btn px-6 py-2 rounded-lg font-semibold text-sm transition-colors bg-cyan-500 text-gray-950"
         >
           📱 Apper
         </button>
@@ -61,7 +61,7 @@ import Layout from '../layouts/Layout.astro';
               href="/demo-nordvik-bygg.html"
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-6 py-3 rounded-xl transition-colors"
+              class="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-3 rounded-xl transition-colors"
             >
               Se live demo →
             </a>
@@ -86,7 +86,7 @@ import Layout from '../layouts/Layout.astro';
               href="/demo-berglund-anlegg.html"
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-6 py-3 rounded-xl transition-colors"
+              class="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-3 rounded-xl transition-colors"
             >
               Se live demo →
             </a>
@@ -111,7 +111,7 @@ import Layout from '../layouts/Layout.astro';
               href="/demo/snekker"
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-6 py-3 rounded-xl transition-colors"
+              class="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-3 rounded-xl transition-colors"
             >
               Se live demo →
             </a>
@@ -123,7 +123,7 @@ import Layout from '../layouts/Layout.astro';
 
     <div class="max-w-5xl mx-auto mt-10 text-center">
       <p class="text-gray-500 text-sm">Vil du se mer? Ta kontakt – vi viser deg gjerne mer av arbeidet vårt.</p>
-      <a href="/kontakt" class="inline-block mt-4 text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">
+      <a href="/kontakt" class="inline-block mt-4 text-cyan-400 hover:text-cyan-300 font-semibold transition-colors">
         Send en melding →
       </a>
     </div>
@@ -138,11 +138,11 @@ import Layout from '../layouts/Layout.astro';
       const btn = document.getElementById('tab-' + t);
       const content = document.getElementById('content-' + t);
       if (t === tab) {
-        btn.classList.add('bg-emerald-500', 'text-gray-950');
+        btn.classList.add('bg-cyan-500', 'text-gray-950');
         btn.classList.remove('text-gray-400', 'hover:text-white');
         content.classList.remove('hidden');
       } else {
-        btn.classList.remove('bg-emerald-500', 'text-gray-950');
+        btn.classList.remove('bg-cyan-500', 'text-gray-950');
         btn.classList.add('text-gray-400', 'hover:text-white');
         content.classList.add('hidden');
       }
