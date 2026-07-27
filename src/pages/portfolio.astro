@@ -92,6 +92,31 @@ import Layout from '../layouts/Layout.astro';
             </a>
           </div>
         </div>
+
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+          <div class="p-8 md:p-10">
+            <span class="text-xs text-orange-400 font-semibold uppercase tracking-wider">Nettside</span>
+            <h2 class="text-2xl font-bold mt-1 mb-3">Halvorsen Snekker – demo for snekkerbedrift</h2>
+            <p class="text-gray-400 mb-6 max-w-2xl">
+              Komplett demo-nettside for en fiktiv snekkerbedrift i Telemark. Viser tjenester, arbeidsprosess,
+              firmabeskrivelse og kontaktskjema — med en gjennomarbeidet visuell identitet i dyp skoggrønn
+              og bjørkegull.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-8">
+              {['Astro', 'Responsivt design', 'Visuell identitet', 'Kontaktskjema'].map(tag => (
+                <span class="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-md">{tag}</span>
+              ))}
+            </div>
+            <a
+              href="/demo/snekker"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-3 rounded-xl transition-colors"
+            >
+              Se live demo →
+            </a>
+          </div>
+        </div>
       </div>
 
     </div>
