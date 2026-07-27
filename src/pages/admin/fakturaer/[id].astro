@@ -151,6 +151,12 @@ const emailError = Astro.url.searchParams.get('error');
         </div>
       </div>
 
+      {inv.notes && (
+        <div style="margin-top:24px;padding:16px 20px;background:#f9f9f9;border-radius:8px;font-size:0.82rem;color:#000;white-space:pre-line;">
+          {inv.notes}
+        </div>
+      )}
+
       <div style="margin-top:40px;padding-top:16px;border-top:1px solid #ccc;font-size:0.8rem;text-align:center;color:#000;">
         Hauan Digital · Org.nr: 937 888 309 · Sandvikvegen 71D, 6030 Langevåg · kjetil@mhhdigital.no
       </div>
