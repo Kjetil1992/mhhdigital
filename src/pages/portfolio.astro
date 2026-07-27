@@ -18,31 +18,23 @@ import Layout from '../layouts/Layout.astro';
       <!-- Tabs -->
       <div class="flex gap-2 mb-10 bg-gray-900 border border-gray-800 rounded-xl p-1 w-fit mx-auto">
         <button
-          id="tab-apper"
-          onclick="showTab('apper')"
-          class="tab-btn px-6 py-2 rounded-lg font-semibold text-sm transition-colors bg-cyan-500 text-gray-950"
-        >
-          📱 Apper
-        </button>
-        <button
           id="tab-nettsider"
           onclick="showTab('nettsider')"
-          class="tab-btn px-6 py-2 rounded-lg font-semibold text-sm transition-colors text-gray-400 hover:text-white"
+          class="tab-btn px-6 py-2 rounded-lg font-semibold text-sm transition-colors bg-cyan-500 text-gray-950"
         >
           🌐 Nettsider
         </button>
-      </div>
-
-      <!-- Apper -->
-      <div id="content-apper">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center text-gray-500">
-          <div class="text-5xl mb-4">📱</div>
-          <p>Appprosjekter kommer snart.</p>
-        </div>
+        <button
+          id="tab-apper"
+          onclick="showTab('apper')"
+          class="tab-btn px-6 py-2 rounded-lg font-semibold text-sm transition-colors text-gray-400 hover:text-white"
+        >
+          📱 Apper
+        </button>
       </div>
 
       <!-- Nettsider -->
-      <div id="content-nettsider" class="hidden space-y-6">
+      <div id="content-nettsider" class="space-y-6">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
           <div class="p-8 md:p-10">
             <span class="text-xs text-orange-400 font-semibold uppercase tracking-wider">Nettside</span>
@@ -116,6 +108,14 @@ import Layout from '../layouts/Layout.astro';
               Se live demo →
             </a>
           </div>
+        </div>
+      </div>
+
+      <!-- Apper -->
+      <div id="content-apper" class="hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center text-gray-500">
+          <div class="text-5xl mb-4">📱</div>
+          <p>Appprosjekter kommer snart.</p>
         </div>
       </div>
 
