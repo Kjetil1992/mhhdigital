@@ -65,19 +65,22 @@
 
     /* ── Hero ── */
     .hero {
-      min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end;
-      padding: 0 48px 72px;
+      min-height: 100vh; display: grid; grid-template-columns: 58fr 42fr;
       background-color: var(--linen);
+    }
+    .hero-content {
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 120px 56px 72px;
       background-image:
         repeating-linear-gradient(109deg, transparent, transparent 4px, rgba(180,160,130,0.07) 4px, rgba(180,160,130,0.07) 6px),
         repeating-linear-gradient(94deg, transparent, transparent 44px, rgba(180,160,130,0.04) 44px, rgba(180,160,130,0.04) 45px);
-      position: relative;
     }
-    .hero-inner { position: relative; max-width: 1400px; width: 100%; }
+    .hero-image { position: relative; overflow: hidden; }
+    .hero-image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .hero-eyebrow { color: var(--birch); display: block; margin-bottom: 20px; }
     .hero-title {
       font-family: "Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;
-      font-size: clamp(4.5rem, 13vw, 15rem);
+      font-size: clamp(3.5rem, 8vw, 11rem);
       line-height: 0.91;
       letter-spacing: -0.02em;
       color: var(--ink);
@@ -85,17 +88,32 @@
       text-wrap: balance;
     }
     .hero-foot {
-      display: flex; align-items: flex-end; justify-content: space-between; gap: 48px;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 32px;
       border-top: 1px solid var(--bd); padding-top: 32px;
     }
-    .hero-tagline { font-size: clamp(1rem, 1.8vw, 1.2rem); color: var(--fg-muted); max-width: 480px; line-height: 1.6; }
-    .hero-actions { display: flex; gap: 14px; flex-shrink: 0; }
-    .btn { display: inline-block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 13px 30px; transition: background 0.2s, transform 0.15s; }
+    .hero-tagline { font-size: clamp(0.9rem, 1.4vw, 1.1rem); color: var(--fg-muted); max-width: 360px; line-height: 1.6; }
+    .hero-actions { display: flex; gap: 12px; flex-shrink: 0; }
+    .btn { display: inline-block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 13px 28px; transition: background 0.2s, transform 0.15s; }
     .btn:hover { transform: translateY(-1px); }
     .btn-primary { color: #fff; background: var(--forest); }
     .btn-primary:hover { background: var(--sage); }
     .btn-ghost { color: var(--fg); border: 1px solid var(--bd); }
     .btn-ghost:hover { border-color: var(--fg); }
+
+    /* ── Projects ── */
+    .projects { padding: 0 48px 120px; background: var(--bg); }
+    .projects-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; }
+    .project { position: relative; overflow: hidden; aspect-ratio: 3/4; background: var(--surface); }
+    .project img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; display: block; }
+    .project:hover img { transform: scale(1.04); }
+    .project-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 48px 24px 20px;
+      background: linear-gradient(to top, rgba(28,43,31,0.75) 0%, transparent 100%);
+      color: #fff; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .project:hover .project-label { opacity: 1; }
 
     /* ── Intro ── */
     .intro { padding: 120px 48px; background: var(--bg); }
@@ -136,7 +154,9 @@
 
     /* ── About ── */
     .about { background: var(--surface); padding: 120px 48px; }
-    .about-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 5fr 4fr; gap: 96px; align-items: start; }
+    .about-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 5fr 3fr 3fr; gap: 56px; align-items: start; }
+    .about-img { aspect-ratio: 3/4; overflow: hidden; }
+    .about-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .about .label { color: var(--birch); display: block; margin-bottom: 16px; }
     .about-h2 { font-family: "Palatino Linotype","Book Antiqua",Palatino,Georgia,serif; font-size: clamp(1.8rem,3vw,2.8rem); color: var(--fg); margin-bottom: 28px; }
     .about-body { color: var(--fg-muted); line-height: 1.82; font-size: 1rem; }
@@ -190,10 +210,14 @@
     @media (max-width: 900px) {
       nav { padding: 16px 24px; }
       .nav-links { display: none; }
-      .hero { padding: 0 24px 56px; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-image { display: none; }
+      .hero-content { padding: 120px 24px 56px; }
       .intro { padding: 80px 24px; }
       .intro-inner { grid-template-columns: 1fr; gap: 48px; }
       .services { padding: 0 24px 80px; }
+      .projects { padding: 0 24px 80px; }
+      .projects-grid { grid-template-columns: 1fr 1fr; }
       .services-grid { grid-template-columns: 1fr 1fr; }
       .svc:nth-child(3n)  { border-right: 1px solid var(--bd); }
       .svc:nth-child(2n)  { border-right: none; }
@@ -203,6 +227,7 @@
       .steps { grid-template-columns: 1fr 1fr; }
       .about { padding: 80px 24px; }
       .about-inner { grid-template-columns: 1fr; gap: 48px; }
+      .about-img { display: none; }
       .stats { flex-direction: row; flex-wrap: wrap; }
       .stat { flex: 1 1 140px; }
       .contact { padding: 80px 24px; }
@@ -233,7 +258,7 @@
 
   <!-- Hero -->
   <section class="hero">
-    <div class="hero-inner">
+    <div class="hero-content">
       <span class="label hero-eyebrow">Snekkerverksted · Notodden · Est. 1987</span>
       <h1 class="hero-title">Halvorsen<br>Snekker</h1>
       <div class="hero-foot">
@@ -243,6 +268,9 @@
           <a href="#tjenester" class="btn btn-ghost">Tjenester</a>
         </div>
       </div>
+    </div>
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1590880795696-20c7dfadacde?auto=format&fit=crop&w=900&q=80" alt="Snekkerverksted" />
     </div>
   </section>
 
@@ -258,6 +286,28 @@
       <div class="pullquote">
         <blockquote>«Snekkeren er ferdig når kunden ikke lenger trenger oss — men husker oss likevel.»</blockquote>
         <cite>— Tor Halvorsen, grunnlegger</cite>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section class="projects" id="prosjekter">
+    <div class="section-head">
+      <span class="label" style="color:var(--birch);">Prosjekter</span>
+      <h2 class="section-h2">Utvalgte arbeider</h2>
+    </div>
+    <div class="projects-grid">
+      <div class="project">
+        <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=700&q=80&crop=entropy" alt="Skreddersydd kjøkken" loading="lazy" />
+        <div class="project-label">Kjøkken · Notodden 2023</div>
+      </div>
+      <div class="project">
+        <img src="https://images.unsplash.com/photo-1546964432-2ca7fcd08632?auto=format&fit=crop&w=700&q=80" alt="Svevende trapp i tre" loading="lazy" />
+        <div class="project-label">Trapp · Kongsberg 2024</div>
+      </div>
+      <div class="project">
+        <img src="https://images.unsplash.com/photo-1605125626499-e2c7efbd1ab3?auto=format&fit=crop&w=700&q=80" alt="Innredning i stue" loading="lazy" />
+        <div class="project-label">Innredning · Skien 2024</div>
       </div>
     </div>
   </section>
@@ -303,6 +353,9 @@
           <p>Vi er et lite verksted med seks ansatte, og det er vi med vilje. Det gir oss kontroll over kvaliteten i hvert eneste ledd, og betyr at du alltid snakker med noen som kjenner prosjektet ditt.</p>
           <p>Vi bruker primært norsk furu, gran og ask — treslag som er vokst frem i det samme klimaet som husene de skal inn i.</p>
         </div>
+      </div>
+      <div class="about-img">
+        <img src="https://images.unsplash.com/photo-1682145637222-1556eda23db6?auto=format&fit=crop&w=600&q=80" alt="Snekker i arbeid" loading="lazy" />
       </div>
       <div class="stats">
         <div class="stat"><div class="stat-n">37</div><div class="stat-l">År i bransjen</div></div>
