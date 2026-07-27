@@ -1,0 +1,145 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+const sb = getSupabase();
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const action = data.get('action');
+
+  if (action === 'create') {
+    await sb.from('price_items').insert({
+      name: data.get('name'),
+      description: data.get('description') || null,
+      unit_price: Number(data.get('unit_price')) || 0,
+    });
+  } else if (action === 'update') {
+    await sb.from('price_items').update({
+      name: data.get('name'),
+      description: data.get('description') || null,
+      unit_price: Number(data.get('unit_price')) || 0,
+    }).eq('id', data.get('id'));
+  } else if (action === 'delete') {
+    await sb.from('price_items').delete().eq('id', data.get('id'));
+  }
+
+  return Astro.redirect('/admin/prisliste');
+}
+
+const { data: items } = await sb.from('price_items').select('*').order('name');
+---
+
+<AdminLayout title="Prisliste">
+  <div class="max-w-3xl">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-bold">Prisliste</h1>
+      <button
+        onclick="document.getElementById('modal-new').classList.remove('hidden')"
+        class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm"
+      >
+        + Ny post
+      </button>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+      {!items?.length ? (
+        <p class="text-gray-500 text-center py-16">Ingen poster ennå. Legg til tjenester og produkter du fakturerer ofte.</p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead class="border-b border-gray-800">
+            <tr>
+              <th class="text-left px-6 py-3 text-gray-400 font-medium">Navn</th>
+              <th class="text-left px-6 py-3 text-gray-400 font-medium">Beskrivelse</th>
+              <th class="text-right px-6 py-3 text-gray-400 font-medium">Pris (kr)</th>
+              <th class="px-6 py-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item: any) => (
+              <tr class="border-b border-gray-800 last:border-0 hover:bg-gray-800/40">
+                <td class="px-6 py-4 font-medium">{item.name}</td>
+                <td class="px-6 py-4 text-gray-400">{item.description || <span class="text-gray-600">—</span>}</td>
+                <td class="px-6 py-4 text-right font-mono">{Number(item.unit_price).toLocaleString('nb-NO')} kr</td>
+                <td class="px-6 py-4 text-right flex items-center justify-end gap-4">
+                  <button
+                    onclick={`openEdit(${JSON.stringify(item)})`}
+                    class="text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >Rediger</button>
+                  <form method="POST" class="inline" onsubmit="return confirm('Slett denne posten?')">
+                    <input type="hidden" name="action" value="delete" />
+                    <input type="hidden" name="id" value={item.id} />
+                    <button type="submit" class="text-red-500 hover:text-red-400 transition-colors">Slett</button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </div>
+
+  <!-- Modal: Ny post -->
+  <div id="modal-new" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 w-full max-w-md">
+      <h2 class="text-lg font-bold mb-6">Ny post</h2>
+      <form method="POST" class="space-y-4">
+        <input type="hidden" name="action" value="create" />
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Navn *</label>
+          <input name="name" required placeholder="f.eks. Timearbeid" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Beskrivelse</label>
+          <input name="description" placeholder="Valgfri beskrivelse" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Pris (kr) *</label>
+          <input name="unit_price" type="number" min="0" required placeholder="0" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre</button>
+          <button type="button" onclick="document.getElementById('modal-new').classList.add('hidden')" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Rediger post -->
+  <div id="modal-edit" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 w-full max-w-md">
+      <h2 class="text-lg font-bold mb-6">Rediger post</h2>
+      <form method="POST" class="space-y-4">
+        <input type="hidden" name="action" value="update" />
+        <input type="hidden" name="id" id="edit-id" />
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Navn *</label>
+          <input id="edit-name" name="name" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Beskrivelse</label>
+          <input id="edit-description" name="description" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Pris (kr) *</label>
+          <input id="edit-price" name="unit_price" type="number" min="0" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre</button>
+          <button type="button" onclick="document.getElementById('modal-edit').classList.add('hidden')" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+  function openEdit(item) {
+    document.getElementById('edit-id').value = item.id;
+    document.getElementById('edit-name').value = item.name;
+    document.getElementById('edit-description').value = item.description || '';
+    document.getElementById('edit-price').value = item.unit_price;
+    document.getElementById('modal-edit').classList.remove('hidden');
+  }
+</script>

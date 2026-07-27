@@ -5,6 +5,7 @@ import { getSupabase } from '../../../lib/supabase';
 const sb = getSupabase();
 const { data: customers } = await sb.from('customers').select('id, name').order('name');
 const { data: projects } = await sb.from('projects').select('id, name, customer_id').order('name');
+const { data: priceItems } = await sb.from('price_items').select('*').order('name');
 
 if (Astro.request.method === 'POST') {
   const data = await Astro.request.formData();
@@ -85,7 +86,14 @@ if (Astro.request.method === 'POST') {
 
       <!-- Lines -->
       <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-        <h2 class="font-bold mb-4">Linjer</h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-bold">Linjer</h2>
+          {priceItems && priceItems.length > 0 && (
+            <button type="button" onclick="document.getElementById('modal-prisliste').classList.remove('hidden')" class="text-sm border border-gray-700 hover:border-cyan-700 text-gray-300 hover:text-cyan-400 px-3 py-1.5 rounded-lg transition-colors">
+              🏷️ Hent fra prisliste
+            </button>
+          )}
+        </div>
         <div id="lines" class="space-y-3">
           <div class="grid grid-cols-12 gap-2 items-center">
             <input name="desc" placeholder="Beskrivelse" required class="col-span-6 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
@@ -103,19 +111,64 @@ if (Astro.request.method === 'POST') {
       </div>
     </form>
   </div>
+
+  <!-- Modal: Prisliste -->
+  <div id="modal-prisliste" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 w-full max-w-lg max-h-[80vh] flex flex-col">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-lg font-bold">Velg fra prisliste</h2>
+        <button type="button" onclick="document.getElementById('modal-prisliste').classList.add('hidden')" class="text-gray-500 hover:text-white text-xl">×</button>
+      </div>
+      <div class="overflow-y-auto space-y-2">
+        {priceItems?.map((item: any) => (
+          <button
+            type="button"
+            onclick={`addPriceItem(${JSON.stringify(item.name)}, ${JSON.stringify(item.description || item.name)}, ${item.unit_price})`}
+            class="w-full text-left flex items-center justify-between px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors group"
+          >
+            <div>
+              <div class="font-medium text-white">{item.name}</div>
+              {item.description && <div class="text-xs text-gray-400 mt-0.5">{item.description}</div>}
+            </div>
+            <div class="text-right shrink-0 ml-4">
+              <div class="font-mono text-sm text-gray-300">{Number(item.unit_price).toLocaleString('nb-NO')} kr</div>
+              <div class="text-xs text-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity">+ Legg til</div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
 </AdminLayout>
 
 <script is:inline>
-  document.getElementById('add-line').addEventListener('click', () => {
-    const container = document.getElementById('lines');
+  function makeLine(desc, qty, price) {
     const row = document.createElement('div');
     row.className = 'grid grid-cols-12 gap-2 items-center';
     row.innerHTML = `
-      <input name="desc" placeholder="Beskrivelse" required class="col-span-6 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
-      <input name="qty" type="number" placeholder="Ant." min="1" value="1" class="col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
-      <input name="price" type="number" placeholder="Pris" min="0" class="col-span-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+      <input name="desc" placeholder="Beskrivelse" required value="${desc.replace(/"/g,'&quot;')}" class="col-span-6 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+      <input name="qty" type="number" placeholder="Ant." min="1" value="${qty}" class="col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
+      <input name="price" type="number" placeholder="Pris" min="0" value="${price}" class="col-span-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
       <button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-gray-600 hover:text-red-400 transition-colors text-lg">×</button>
     `;
-    container.appendChild(row);
+    return row;
+  }
+
+  document.getElementById('add-line').addEventListener('click', () => {
+    document.getElementById('lines').appendChild(makeLine('', 1, ''));
   });
+
+  function addPriceItem(name, desc, price) {
+    const container = document.getElementById('lines');
+    // If only one empty row, fill it instead of adding a new one
+    const rows = container.querySelectorAll('div');
+    const firstDesc = rows[0]?.querySelector('input[name="desc"]');
+    if (rows.length === 1 && firstDesc && !firstDesc.value) {
+      firstDesc.value = desc;
+      rows[0].querySelector('input[name="price"]').value = price;
+    } else {
+      container.appendChild(makeLine(desc, 1, price));
+    }
+    document.getElementById('modal-prisliste').classList.add('hidden');
+  }
 </script>
