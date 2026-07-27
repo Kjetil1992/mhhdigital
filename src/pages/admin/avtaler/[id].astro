@@ -1,0 +1,127 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+const sb = getSupabase();
+const { id } = Astro.params;
+const { data: customers } = await sb.from('customers').select('id, name').order('name');
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const action = data.get('action');
+
+  if (action === 'delete') {
+    await sb.from('agreements').delete().eq('id', id);
+    return Astro.redirect('/admin/avtaler');
+  }
+
+  await sb.from('agreements').update({
+    customer_id: data.get('customer_id') || null,
+    title: data.get('title'),
+    type: data.get('type'),
+    status: data.get('status'),
+    price: Number(data.get('price')) || 0,
+    billing_interval: data.get('billing_interval'),
+    start_date: data.get('start_date') || null,
+    notes: data.get('notes') || null,
+  }).eq('id', id);
+
+  return Astro.redirect(`/admin/avtaler/${id}`);
+}
+
+const { data: agreement } = await sb
+  .from('agreements')
+  .select('*, customers(name)')
+  .eq('id', id)
+  .single();
+
+if (!agreement) return Astro.redirect('/admin/avtaler');
+
+const intervalLabel: Record<string, string> = { monthly: 'Per måned', yearly: 'Per år', once: 'Engangs' };
+const startVal = agreement.start_date ? agreement.start_date.slice(0, 10) : '';
+---
+
+<AdminLayout title={agreement.title}>
+  <div class="max-w-2xl">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <a href="/admin/avtaler" class="text-gray-500 hover:text-gray-300 text-sm transition-colors">← Avtaler</a>
+        <h1 class="text-2xl font-bold mt-1">{agreement.title}</h1>
+        <p class="text-gray-400 text-sm mt-0.5">{agreement.customers?.name ?? '—'}</p>
+      </div>
+      <form method="POST" onsubmit="return confirm('Slett denne avtalen?')">
+        <input type="hidden" name="action" value="delete" />
+        <button type="submit" class="border border-red-900 hover:border-red-700 text-red-400 hover:text-red-300 font-semibold px-4 py-2 rounded-xl transition-colors text-sm">
+          Slett
+        </button>
+      </form>
+    </div>
+
+    <form method="POST" class="space-y-6">
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-5">
+        <div class="grid grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Kunde</label>
+            <select name="customer_id" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+              <option value="">— Ingen kunde —</option>
+              {customers?.map((c: any) => (
+                <option value={c.id} selected={c.id === agreement.customer_id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Type</label>
+            <select name="type" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+              <option value="vedlikehold" selected={agreement.type === 'vedlikehold'}>Vedlikeholdsavtale</option>
+              <option value="nettside" selected={agreement.type === 'nettside'}>Nettside</option>
+              <option value="annet" selected={agreement.type === 'annet'}>Annet</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Avtaletittel</label>
+          <input name="title" required value={agreement.title} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+        </div>
+
+        <div class="grid grid-cols-3 gap-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Pris (kr)</label>
+            <input name="price" type="number" min="0" value={agreement.price} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Faktureringsintervall</label>
+            <select name="billing_interval" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+              <option value="monthly" selected={agreement.billing_interval === 'monthly'}>Per måned</option>
+              <option value="yearly" selected={agreement.billing_interval === 'yearly'}>Per år</option>
+              <option value="once" selected={agreement.billing_interval === 'once'}>Engangs</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Startdato</label>
+            <input name="start_date" type="date" value={startVal} class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Status</label>
+          <select name="status" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+            <option value="aktiv" selected={agreement.status === 'aktiv'}>Aktiv</option>
+            <option value="pausert" selected={agreement.status === 'pausert'}>Pausert</option>
+            <option value="avsluttet" selected={agreement.status === 'avsluttet'}>Avsluttet</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Notater</label>
+          <textarea name="notes" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 resize-none">{agreement.notes ?? ''}</textarea>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Lagre endringer</button>
+        <a href="/admin/avtaler" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</a>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

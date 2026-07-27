@@ -1,0 +1,90 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+const sb = getSupabase();
+const { data: agreements } = await sb
+  .from('agreements')
+  .select('*, customers(name)')
+  .order('created_at', { ascending: false });
+
+const typeLabel: Record<string, string> = { nettside: 'Nettside', vedlikehold: 'Vedlikehold' };
+const intervalLabel: Record<string, string> = { monthly: 'per mnd', yearly: 'per år', once: 'engangs' };
+const statusColor: Record<string, string> = {
+  aktiv: 'bg-green-950 text-green-400',
+  pausert: 'bg-yellow-950 text-yellow-400',
+  avsluttet: 'bg-gray-800 text-gray-500',
+};
+---
+
+<AdminLayout title="Avtaler">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-2xl font-bold">Avtaler</h1>
+    <a href="/admin/avtaler/ny" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">
+      + Ny avtale
+    </a>
+  </div>
+
+  <!-- Sammendrag -->
+  {agreements && agreements.length > 0 && (() => {
+    const aktive = agreements.filter((a: any) => a.status === 'aktiv');
+    const mndInntekt = aktive.filter((a: any) => a.billing_interval === 'monthly').reduce((s: number, a: any) => s + Number(a.price), 0);
+    const arInntekt = aktive.filter((a: any) => a.billing_interval === 'yearly').reduce((s: number, a: any) => s + Number(a.price), 0);
+    return (
+      <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Aktive avtaler</p>
+          <p class="text-2xl font-bold">{aktive.length}</p>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Månedlig inntekt</p>
+          <p class="text-2xl font-bold">{mndInntekt.toLocaleString('nb-NO')} kr</p>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Årlig inntekt</p>
+          <p class="text-2xl font-bold">{(mndInntekt * 12 + arInntekt).toLocaleString('nb-NO')} kr</p>
+        </div>
+      </div>
+    );
+  })()}
+
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+    {!agreements?.length ? (
+      <p class="text-gray-500 text-center py-16">Ingen avtaler ennå.</p>
+    ) : (
+      <table class="w-full text-sm">
+        <thead class="border-b border-gray-800">
+          <tr>
+            <th class="text-left px-6 py-3 text-gray-400 font-medium">Kunde</th>
+            <th class="text-left px-6 py-3 text-gray-400 font-medium">Avtale</th>
+            <th class="text-left px-6 py-3 text-gray-400 font-medium">Type</th>
+            <th class="text-left px-6 py-3 text-gray-400 font-medium">Pris</th>
+            <th class="text-left px-6 py-3 text-gray-400 font-medium">Status</th>
+            <th class="px-6 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {agreements.map((a: any) => (
+            <tr class="border-b border-gray-800 last:border-0 hover:bg-gray-800/40">
+              <td class="px-6 py-4 font-medium">{a.customers?.name ?? '—'}</td>
+              <td class="px-6 py-4 text-gray-300">{a.title}</td>
+              <td class="px-6 py-4 text-gray-400">{typeLabel[a.type] ?? a.type}</td>
+              <td class="px-6 py-4 font-mono text-sm">
+                {Number(a.price).toLocaleString('nb-NO')} kr
+                {a.billing_interval !== 'once' && <span class="text-gray-500 text-xs ml-1">{intervalLabel[a.billing_interval]}</span>}
+              </td>
+              <td class="px-6 py-4">
+                <span class={`text-xs px-2.5 py-1 rounded-full ${statusColor[a.status] ?? 'bg-gray-800 text-gray-400'}`}>
+                  {a.status.charAt(0).toUpperCase() + a.status.slice(1)}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <a href={`/admin/avtaler/${a.id}`} class="text-cyan-400 hover:text-cyan-300 transition-colors">Rediger</a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+</AdminLayout>

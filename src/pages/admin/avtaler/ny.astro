@@ -1,0 +1,84 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+const sb = getSupabase();
+const { data: customers } = await sb.from('customers').select('id, name').order('name');
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  await sb.from('agreements').insert({
+    customer_id: data.get('customer_id') || null,
+    title: data.get('title'),
+    type: data.get('type'),
+    status: 'aktiv',
+    price: Number(data.get('price')) || 0,
+    billing_interval: data.get('billing_interval'),
+    start_date: data.get('start_date') || null,
+    notes: data.get('notes') || null,
+  });
+  return Astro.redirect('/admin/avtaler');
+}
+---
+
+<AdminLayout title="Ny avtale">
+  <div class="max-w-2xl">
+    <h1 class="text-2xl font-bold mb-8">Ny avtale</h1>
+    <form method="POST" class="space-y-6">
+
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-5">
+        <div class="grid grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Kunde</label>
+            <select name="customer_id" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+              <option value="">— Velg kunde —</option>
+              {customers?.map((c: any) => <option value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Type *</label>
+            <select name="type" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+              <option value="vedlikehold">Vedlikeholdsavtale</option>
+              <option value="nettside">Nettside</option>
+              <option value="annet">Annet</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Avtaletittel *</label>
+          <input name="title" required placeholder="f.eks. Driftsavtale Premium" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+        </div>
+
+        <div class="grid grid-cols-3 gap-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Pris (kr) *</label>
+            <input name="price" type="number" min="0" required placeholder="0" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Faktureringsintervall</label>
+            <select name="billing_interval" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+              <option value="monthly">Per måned</option>
+              <option value="yearly">Per år</option>
+              <option value="once">Engangs</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Startdato</label>
+            <input name="start_date" type="date" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Notater</label>
+          <textarea name="notes" rows="3" placeholder="Hva inkluderer avtalen, spesielle vilkår, osv." class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-6 py-2.5 rounded-xl transition-colors">Opprett avtale</button>
+        <a href="/admin/avtaler" class="text-gray-400 hover:text-white px-6 py-2.5 transition-colors">Avbryt</a>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
