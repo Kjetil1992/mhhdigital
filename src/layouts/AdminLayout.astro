@@ -29,14 +29,14 @@ const nav = [
   <!-- Sidebar -->
   <aside class="w-56 bg-gray-900 border-r border-gray-800 flex flex-col min-h-screen fixed top-0 left-0">
     <div class="p-5 border-b border-gray-800">
-      <span class="font-bold text-white">MHH</span><span class="font-bold text-cyan-400">Digital</span>
+      <span class="font-bold text-white">MHH</span><span class="font-bold text-emerald-400">Digital</span>
       <p class="text-xs text-gray-500 mt-0.5">Admin</p>
     </div>
     <nav class="flex-1 p-3 space-y-1">
       {nav.map(n => (
         <a
           href={n.href}
-          class={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${path.startsWith(n.href) ? 'bg-cyan-950 text-cyan-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+          class={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${path.startsWith(n.href) ? 'bg-emerald-950 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
         >
           <span>{n.icon}</span>
           {n.label}

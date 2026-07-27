@@ -31,7 +31,7 @@ const tabs = [
 <AdminLayout title="Fakturaer">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold">Fakturaer</h1>
-    <a href="/admin/fakturaer/ny" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">
+    <a href="/admin/fakturaer/ny" class="bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">
       + Ny faktura
     </a>
   </div>
@@ -41,7 +41,7 @@ const tabs = [
     {tabs.map(tab => (
       <a
         href={tab.value ? `/admin/fakturaer?status=${tab.value}` : '/admin/fakturaer'}
-        class={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${statusFilter === tab.value ? 'bg-cyan-500 text-gray-950' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
+        class={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${statusFilter === tab.value ? 'bg-emerald-500 text-gray-950' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
       >
         {tab.label}
       </a>
@@ -76,7 +76,7 @@ const tabs = [
                 </span>
               </td>
               <td class="px-6 py-4 text-right">
-                <a href={`/admin/fakturaer/${inv.id}`} class="text-cyan-400 hover:text-cyan-300 transition-colors">Åpne</a>
+                <a href={`/admin/fakturaer/${inv.id}`} class="text-emerald-400 hover:text-emerald-300 transition-colors">Åpne</a>
               </td>
             </tr>
           ))}

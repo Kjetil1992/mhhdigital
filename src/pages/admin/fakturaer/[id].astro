@@ -61,12 +61,12 @@ const emailError = Astro.url.searchParams.get('error');
       </form>
       <form method="POST" class="flex gap-2">
         <input type="hidden" name="action" value="update_status" />
-        <select name="status" class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500">
+        <select name="status" class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500">
           <option value="kladd" selected={inv.status === 'kladd'}>Kladd</option>
           <option value="sendt" selected={inv.status === 'sendt'}>Sendt</option>
           <option value="betalt" selected={inv.status === 'betalt'}>Betalt</option>
         </select>
-        <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-4 py-2 rounded-xl transition-colors text-sm">Oppdater</button>
+        <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-4 py-2 rounded-xl transition-colors text-sm">Oppdater</button>
       </form>
     </div>
 
