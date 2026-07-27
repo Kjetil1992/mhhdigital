@@ -1,0 +1,149 @@
+---
+import { getSupabase } from '../../../../lib/supabase';
+
+const { id } = Astro.params;
+const sb = getSupabase();
+
+const { data: agreement } = await sb
+  .from('agreements')
+  .select('*, customers(*)')
+  .eq('id', id)
+  .single();
+
+if (!agreement) return Astro.redirect('/admin/avtaler');
+
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+
+const intervalLabel: Record<string, string> = {
+  monthly: 'per måned',
+  yearly: 'per år',
+  once: 'engangs',
+};
+
+const typeLabel: Record<string, string> = {
+  vedlikehold: 'Vedlikeholdsavtale',
+  nettside: 'Nettside',
+  annet: 'Avtale',
+};
+
+const startFormatted = agreement.start_date
+  ? new Date(agreement.start_date).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })
+  : null;
+
+const todayFormatted = new Date().toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="color-scheme" content="light" />
+  <title>Avtale – {agreement.title}</title>
+  <style is:global>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    @page { margin: 0; size: A4; }
+    @media print {
+      .no-print { display: none !important; }
+      body { padding: 15mm !important; }
+    }
+  </style>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#000;padding:60px;max-width:800px;margin:0 auto;background:#fff;">
+
+  <div class="no-print" style="background:#f3f4f6;padding:12px 24px;margin:-60px -60px 40px;display:flex;justify-content:flex-end;">
+    <button onclick="window.print()" style="background:#222;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+      Skriv ut / Lagre som PDF
+    </button>
+  </div>
+  <script is:inline>
+    if (new URLSearchParams(location.search).get('auto') === '1') {
+      window.addEventListener('load', function() { window.print(); });
+    }
+  </script>
+
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;margin-bottom:48px;">
+    <div>
+      <div style="font-size:1.5rem;font-weight:700;color:#000;">MHH Digital</div>
+      <div style="color:#000;font-size:0.85rem;margin-top:6px;font-weight:600;">Hauan Digital</div>
+      <div style="color:#000;font-size:0.85rem;">Org.nr: 937 888 309</div>
+      <div style="color:#000;font-size:0.85rem;">Sandvikvegen 71D, 6030 Langevåg</div>
+      <div style="color:#000;font-size:0.85rem;">kjetil@mhhdigital.no</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:1.3rem;font-weight:800;letter-spacing:0.05em;color:#000;">{typeLabel[agreement.type] ?? 'AVTALE'}</div>
+      <div style="color:#000;font-size:0.9rem;margin-top:4px;">Dato: {todayFormatted}</div>
+      {startFormatted && <div style="color:#000;font-size:0.9rem;">Startdato: {startFormatted}</div>}
+      <div style="color:#000;font-size:0.9rem;margin-top:8px;">
+        Status: <span style="font-weight:600;">{agreement.status.charAt(0).toUpperCase() + agreement.status.slice(1)}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parter -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:40px;">
+    <div>
+      <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;color:#000;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:8px;">Leverandør</div>
+      <div style="font-weight:700;color:#000;">Hauan Digital</div>
+      <div style="color:#000;font-size:0.85rem;">Org.nr: 937 888 309</div>
+      <div style="color:#000;font-size:0.85rem;">Sandvikvegen 71D, 6030 Langevåg</div>
+      <div style="color:#000;font-size:0.85rem;">kjetil@mhhdigital.no</div>
+    </div>
+    <div>
+      <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;color:#000;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:8px;">Kunde</div>
+      {agreement.customers ? (
+        <>
+          <div style="font-weight:700;color:#000;">{agreement.customers.name}</div>
+          {agreement.customers.email && <div style="color:#000;font-size:0.85rem;">{agreement.customers.email}</div>}
+          {agreement.customers.address && <div style="color:#000;font-size:0.85rem;white-space:pre-line;">{agreement.customers.address}</div>}
+          {agreement.customers.org_number && <div style="color:#000;font-size:0.85rem;">Org.nr: {agreement.customers.org_number}</div>}
+        </>
+      ) : (
+        <div style="color:#666;font-size:0.85rem;">Ingen kunde registrert</div>
+      )}
+    </div>
+  </div>
+
+  <!-- Avtaletittel og pris -->
+  <div style="border:2px solid #000;padding:20px 24px;margin-bottom:32px;">
+    <div style="font-size:1.1rem;font-weight:800;color:#000;margin-bottom:4px;">{agreement.title}</div>
+    <div style="font-size:1.4rem;font-weight:800;color:#000;">
+      {Number(agreement.price).toLocaleString('nb-NO')} kr
+      {agreement.billing_interval !== 'once' && (
+        <span style="font-size:0.9rem;font-weight:400;color:#000;"> {intervalLabel[agreement.billing_interval]}</span>
+      )}
+    </div>
+    <div style="color:#555;font-size:0.8rem;margin-top:4px;">Alle priser er eks. MVA.</div>
+  </div>
+
+  <!-- Innhold/notater -->
+  {agreement.notes && (
+    <div style="margin-bottom:40px;">
+      <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;color:#000;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:12px;">Avtalens innhold</div>
+      <div style="font-size:0.9rem;color:#000;white-space:pre-line;line-height:1.7;">{agreement.notes}</div>
+    </div>
+  )}
+
+  <!-- Underskrift -->
+  <div style="margin-top:60px;display:grid;grid-template-columns:1fr 1fr;gap:48px;">
+    <div>
+      <div style="border-top:1px solid #000;padding-top:8px;margin-top:48px;">
+        <div style="font-size:0.8rem;color:#000;">Dato og underskrift – Leverandør</div>
+        <div style="font-size:0.85rem;color:#000;margin-top:4px;">Hauan Digital</div>
+      </div>
+    </div>
+    <div>
+      <div style="border-top:1px solid #000;padding-top:8px;margin-top:48px;">
+        <div style="font-size:0.8rem;color:#000;">Dato og underskrift – Kunde</div>
+        {agreement.customers && <div style="font-size:0.85rem;color:#000;margin-top:4px;">{agreement.customers.name}</div>}
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top:48px;padding-top:16px;border-top:1px solid #ccc;font-size:0.8rem;text-align:center;color:#000;">
+    Hauan Digital · Org.nr: 937 888 309 · Sandvikvegen 71D, 6030 Langevåg · kjetil@mhhdigital.no
+  </div>
+
+</body>
+</html>
