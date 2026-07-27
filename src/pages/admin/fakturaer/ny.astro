@@ -99,7 +99,7 @@ if (Astro.request.method === 'POST') {
             <input name="desc" placeholder="Beskrivelse" required class="col-span-6 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
             <input name="qty" type="number" placeholder="Ant." min="1" value="1" class="col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
             <input name="price" type="number" placeholder="Pris" min="0" class="col-span-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500" />
-            <div class="col-span-1"></div>
+            <button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-gray-600 hover:text-red-400 transition-colors text-lg">×</button>
           </div>
         </div>
         <button type="button" id="add-line" class="mt-4 text-sm text-cyan-400 hover:text-cyan-300 transition-colors">+ Legg til linje</button>
