@@ -22,6 +22,7 @@ if (Astro.request.method === 'POST') {
     status: 'kladd',
     due_date: data.get('due_date') || null,
     mva_rate: Number(data.get('mva_rate') ?? 0),
+    discount: Number(data.get('discount') ?? 0),
   }).select().single();
 
   // Insert lines
@@ -63,7 +64,7 @@ if (Astro.request.method === 'POST') {
             </select>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-5">
+        <div class="grid grid-cols-3 gap-5">
           <div>
             <label class="block text-sm font-medium text-gray-300 mb-1.5">Forfallsdato</label>
             <input name="due_date" type="date" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
@@ -74,6 +75,10 @@ if (Astro.request.method === 'POST') {
               <option value="0">0% — Ikke MVA-pliktig</option>
               <option value="25">25% — MVA</option>
             </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Rabatt (%)</label>
+            <input name="discount" type="number" min="0" max="100" value="0" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
           </div>
         </div>
       </div>

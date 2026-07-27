@@ -31,7 +31,10 @@ const { data: inv } = await sb
 
 if (!inv) return Astro.redirect('/admin/fakturaer');
 
-const total = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
+const subtotal = (inv.invoice_lines ?? []).reduce((s: number, l: any) => s + l.unit_price * l.quantity, 0);
+const discountRate = (inv.discount ?? 0) / 100;
+const discountAmount = subtotal * discountRate;
+const total = subtotal - discountAmount;
 const mvaRate = (inv.mva_rate ?? 0) / 100;
 const mva = total * mvaRate;
 const kid = generateKID(inv.invoice_number);
@@ -121,7 +124,10 @@ const emailError = Astro.url.searchParams.get('error');
       </table>
 
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;margin-bottom:32px;font-size:0.9rem;">
-        <div style="display:flex;gap:48px;color:#000;"><span>Netto</span><span>{total.toLocaleString('nb-NO')} kr</span></div>
+        <div style="display:flex;gap:48px;color:#000;"><span>Subtotal</span><span>{subtotal.toLocaleString('nb-NO')} kr</span></div>
+        {discountAmount > 0 && <div style="display:flex;gap:48px;color:#000;"><span>Rabatt ({inv.discount}%)</span><span>−{discountAmount.toLocaleString('nb-NO')} kr</span></div>}
+        {discountAmount > 0 && <div style="display:flex;gap:48px;color:#000;"><span>Netto etter rabatt</span><span>{total.toLocaleString('nb-NO')} kr</span></div>}
+        {!discountAmount && <div style="display:flex;gap:48px;color:#000;"><span>Netto</span><span>{total.toLocaleString('nb-NO')} kr</span></div>}
         {mva > 0 && <div style="display:flex;gap:48px;color:#000;"><span>MVA ({inv.mva_rate}%)</span><span>{mva.toLocaleString('nb-NO')} kr</span></div>}
         <div style="display:flex;gap:48px;font-weight:800;font-size:1rem;border-top:2px solid #000;padding-top:10px;margin-top:6px;color:#000;">
           <span>Totalt å betale</span><span>{(total + mva).toLocaleString('nb-NO')} kr</span>
@@ -139,7 +145,7 @@ const emailError = Astro.url.searchParams.get('error');
         </div>
         <div>
           <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;color:#000;margin-bottom:4px;">Beløp å betale</div>
-          <div style="font-weight:800;font-size:1rem;color:#000;">{(total + mva).toLocaleString('nb-NO')} kr</div>
+          <div style="font-weight:800;font-size:1rem;color:#000;">{(total + mva).toLocaleString('nb-NO', {minimumFractionDigits:2,maximumFractionDigits:2})} kr</div>
         </div>
       </div>
 
