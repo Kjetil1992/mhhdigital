@@ -163,7 +163,12 @@ const incomeCategories: Record<string, string> = {
           {(expenses ?? []).map((e: any) => (
             <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
               <td class="py-3 px-5 text-gray-400">{new Date(e.date).toLocaleDateString('nb-NO')}</td>
-              <td class="py-3 px-5 font-medium">{e.description}</td>
+              <td class="py-3 px-5 font-medium">
+                {e.description}
+                {e.receipt_url && (
+                  <a href={e.receipt_url} target="_blank" class="ml-2 text-xs text-cyan-600 hover:text-cyan-400 transition-colors">📎</a>
+                )}
+              </td>
               <td class="py-3 px-5"><span class="bg-gray-800 text-gray-300 text-xs px-2.5 py-1 rounded-full">{expenseCategories[e.category] ?? e.category}</span></td>
               <td class="py-3 px-5 text-right text-red-400 font-medium">{e.amount.toLocaleString('nb-NO')} kr</td>
               <td class="py-3 px-5 text-right">

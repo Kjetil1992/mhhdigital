@@ -1,0 +1,113 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../../lib/supabase';
+
+const sb = getSupabase();
+const year = Number(Astro.url.searchParams.get('year') ?? new Date().getFullYear());
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const action = data.get('action');
+  const id = data.get('id');
+  if (action === 'delete') {
+    const { data: exp } = await sb.from('expenses').select('receipt_url').eq('id', id).single();
+    if (exp?.receipt_url) {
+      const path = exp.receipt_url.split('/storage/v1/object/public/receipts/')[1];
+      if (path) await sb.storage.from('receipts').remove([path]);
+    }
+    await sb.from('expenses').delete().eq('id', id);
+  }
+  return Astro.redirect(`/admin/kvitteringer?year=${year}`);
+}
+
+const { data: receipts } = await sb
+  .from('expenses')
+  .select('*')
+  .not('receipt_url', 'is', null)
+  .gte('date', `${year}-01-01`)
+  .lte('date', `${year}-12-31`)
+  .order('date', { ascending: false });
+
+const total = (receipts ?? []).reduce((s: number, e: any) => s + e.amount, 0);
+
+const expenseCategories: Record<string, string> = {
+  programvare: 'Programvare', maskinvare: 'Maskinvare', kontor: 'Kontor',
+  markedsforing: 'Markedsføring', reise: 'Reise', annet: 'Annet',
+};
+---
+
+<AdminLayout title="Kvitteringer">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold">Kvitteringer</h1>
+      <p class="text-gray-400 text-sm mt-1">Utgifter med vedlagte kvitteringer</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href={`/admin/kvitteringer?year=${year - 1}`} class="text-gray-400 hover:text-white px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-500 text-sm transition-colors">← {year - 1}</a>
+      <span class="font-bold text-lg">{year}</span>
+      <a href={`/admin/kvitteringer?year=${year + 1}`} class="text-gray-400 hover:text-white px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-500 text-sm transition-colors">{year + 1} →</a>
+      <a href="/admin/kvitteringer/ny" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors ml-2">+ Last opp kvittering</a>
+    </div>
+  </div>
+
+  {(receipts ?? []).length === 0 ? (
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center">
+      <p class="text-4xl mb-3">🧾</p>
+      <p class="text-gray-400">Ingen kvitteringer for {year}</p>
+      <a href="/admin/kvitteringer/ny" class="inline-block mt-4 text-cyan-400 hover:text-cyan-300 text-sm transition-colors">Last opp din første kvittering →</a>
+    </div>
+  ) : (
+    <>
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden mb-4">
+        <table class="w-full text-sm">
+          <thead class="border-b border-gray-800">
+            <tr>
+              <th class="text-left py-3 px-5 text-gray-400 font-medium">Dato</th>
+              <th class="text-left py-3 px-5 text-gray-400 font-medium">Beskrivelse</th>
+              <th class="text-left py-3 px-5 text-gray-400 font-medium">Kategori</th>
+              <th class="text-right py-3 px-5 text-gray-400 font-medium">Beløp</th>
+              <th class="py-3 px-5 text-gray-400 font-medium text-center">Kvittering</th>
+              <th class="py-3 px-5"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {(receipts ?? []).map((e: any) => {
+              const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(e.receipt_url ?? '');
+              return (
+                <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
+                  <td class="py-3 px-5 text-gray-400">{new Date(e.date).toLocaleDateString('nb-NO')}</td>
+                  <td class="py-3 px-5 font-medium">
+                    {e.description}
+                    {e.notes && <p class="text-xs text-gray-500 mt-0.5">{e.notes}</p>}
+                  </td>
+                  <td class="py-3 px-5"><span class="bg-gray-800 text-gray-300 text-xs px-2.5 py-1 rounded-full">{expenseCategories[e.category] ?? e.category}</span></td>
+                  <td class="py-3 px-5 text-right text-red-400 font-medium">{e.amount.toLocaleString('nb-NO')} kr</td>
+                  <td class="py-3 px-5 text-center">
+                    <a href={e.receipt_url} target="_blank" class="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 text-xs transition-colors">
+                      {isImage ? '🖼️' : '📄'} Vis
+                    </a>
+                  </td>
+                  <td class="py-3 px-5 text-right">
+                    <form method="POST" class="inline" onsubmit="return confirm('Slett denne kvitteringen og utgiftsposten?')">
+                      <input type="hidden" name="action" value="delete" />
+                      <input type="hidden" name="id" value={e.id} />
+                      <button type="submit" class="text-gray-600 hover:text-red-400 transition-colors text-xs">Slett</button>
+                    </form>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot class="border-t-2 border-gray-700">
+            <tr>
+              <td colspan="3" class="py-3 px-5 text-gray-400 font-medium">Totalt</td>
+              <td class="py-3 px-5 text-right font-bold text-red-400">{total.toLocaleString('nb-NO')} kr</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="text-xs text-gray-600">Kvitteringer vises også under <a href="/admin/regnskap" class="text-gray-500 hover:text-gray-400">Regnskap → Utgifter</a>.</p>
+    </>
+  )}
+</AdminLayout>
