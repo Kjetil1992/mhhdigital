@@ -75,7 +75,7 @@ const today = new Date().toISOString().split('T')[0];
             name="receipt"
             accept="image/*,.pdf"
             class="hidden"
-            onchange="handleFileSelect(this)"
+            onchange="showPreview(this.files?.[0])"
           />
         </label>
         <div id="preview" class="hidden mt-4 flex items-center gap-3 bg-gray-800 rounded-xl px-4 py-3">
@@ -86,11 +86,6 @@ const today = new Date().toISOString().split('T')[0];
           </div>
           <button type="button" onclick="clearFile()" class="text-gray-500 hover:text-red-400 transition-colors text-lg">×</button>
         </div>
-        <div id="ai-loading" class="hidden mt-4 flex items-center gap-3 text-cyan-400 text-sm px-1">
-          <span class="animate-spin inline-block">⏳</span>
-          <span>Leser av kvittering med AI…</span>
-        </div>
-        <div id="ai-error" class="hidden mt-3 text-xs text-yellow-500 px-1"></div>
       </div>
 
       <!-- Utgiftsdetaljer -->
@@ -137,6 +132,7 @@ const today = new Date().toISOString().split('T')[0];
 
 <script is:inline>
   function showPreview(file) {
+    if (!file) return;
     const preview = document.getElementById('preview');
     const icon = document.getElementById('preview-icon');
     const name = document.getElementById('preview-name');
@@ -147,49 +143,10 @@ const today = new Date().toISOString().split('T')[0];
     size.textContent = (file.size / 1024).toFixed(0) + ' KB';
   }
 
-  async function extractWithAI(file) {
-    const loading = document.getElementById('ai-loading');
-    const errEl = document.getElementById('ai-error');
-    loading.classList.remove('hidden');
-    errEl.classList.add('hidden');
-
-    try {
-      const fd = new FormData();
-      fd.append('receipt', file);
-      const res = await fetch('/api/kvitteringer/les-av', { method: 'POST', body: fd });
-      if (!res.ok) throw new Error('Serverfeil');
-      const data = await res.json();
-
-      if (data.date) document.querySelector('[name="date"]').value = data.date;
-      if (data.amount) document.querySelector('[name="amount"]').value = data.amount;
-      if (data.description) document.querySelector('[name="description"]').value = data.description;
-      if (data.notes) document.querySelector('[name="notes"]').value = data.notes;
-      if (data.category) {
-        const sel = document.querySelector('[name="category"]');
-        const opt = [...sel.options].find(o => o.value === data.category);
-        if (opt) sel.value = data.category;
-      }
-    } catch (e) {
-      errEl.textContent = 'AI-avlesning feilet — fyll inn feltene manuelt.';
-      errEl.classList.remove('hidden');
-    } finally {
-      loading.classList.add('hidden');
-    }
-  }
-
-  function handleFileSelect(input) {
-    const file = input.files?.[0];
-    if (!file) return;
-    showPreview(file);
-    extractWithAI(file);
-  }
-
   function clearFile() {
     const input = document.getElementById('receipt-input');
     input.value = '';
     document.getElementById('preview').classList.add('hidden');
-    document.getElementById('ai-loading').classList.add('hidden');
-    document.getElementById('ai-error').classList.add('hidden');
   }
 
   function handleDrop(event) {
@@ -199,7 +156,7 @@ const today = new Date().toISOString().split('T')[0];
     if (file) {
       dt.items.add(file);
       input.files = dt.files;
-      handleFileSelect(input);
+      showPreview(file);
     }
   }
 
