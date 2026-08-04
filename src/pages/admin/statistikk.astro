@@ -1,0 +1,167 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getSupabase } from '../../lib/supabase';
+
+const sb = getSupabase();
+const now = new Date();
+const today = now.toISOString().split('T')[0];
+const day30ago = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+const day7ago = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+const [
+  { count: total30 },
+  { count: total7 },
+  { count: totalToday },
+  { data: topPages },
+  { data: daily },
+  { data: countries },
+] = await Promise.all([
+  sb.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', day30ago),
+  sb.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', day7ago),
+  sb.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', `${today}T00:00:00`),
+  sb.rpc('top_pages', { since: day30ago, lim: 8 }).select('*'),
+  sb.rpc('daily_views', { since: day30ago }).select('*'),
+  sb.rpc('views_by_country', { since: day30ago, lim: 6 }).select('*'),
+]);
+
+// Fallback: hent rå data og aggreger i JS hvis RPC mangler
+let pagesData: { path: string; views: number }[] = topPages ?? [];
+let dailyData: { day: string; views: number }[] = daily ?? [];
+let countryData: { country: string; views: number }[] = countries ?? [];
+
+if (!topPages) {
+  const { data: raw } = await sb.from('page_views').select('path').gte('created_at', day30ago);
+  const counts: Record<string, number> = {};
+  (raw ?? []).forEach((r: any) => { counts[r.path] = (counts[r.path] ?? 0) + 1; });
+  pagesData = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([path, views]) => ({ path, views }));
+}
+
+if (!daily) {
+  const { data: raw } = await sb.from('page_views').select('created_at').gte('created_at', day30ago);
+  const counts: Record<string, number> = {};
+  (raw ?? []).forEach((r: any) => {
+    const day = r.created_at.split('T')[0];
+    counts[day] = (counts[day] ?? 0) + 1;
+  });
+  dailyData = Object.entries(counts).sort().map(([day, views]) => ({ day, views }));
+}
+
+if (!countries) {
+  const { data: raw } = await sb.from('page_views').select('country').gte('created_at', day30ago);
+  const counts: Record<string, number> = {};
+  (raw ?? []).forEach((r: any) => {
+    const c = r.country ?? 'Ukjent';
+    counts[c] = (counts[c] ?? 0) + 1;
+  });
+  countryData = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([country, views]) => ({ country, views }));
+}
+
+const maxDaily = Math.max(...dailyData.map(d => d.views), 1);
+const maxPages = Math.max(...pagesData.map(p => p.views), 1);
+---
+
+<AdminLayout title="Statistikk">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold">Besøksstatistikk</h1>
+    <p class="text-gray-400 text-sm mt-1">Sidevisninger fra den offentlige delen av nettsiden</p>
+  </div>
+
+  <!-- Sammendrag -->
+  <div class="grid grid-cols-3 gap-5 mb-10">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+      <p class="text-gray-400 text-sm mb-1">I dag</p>
+      <p class="text-3xl font-bold text-cyan-400">{totalToday ?? 0}</p>
+      <p class="text-gray-600 text-xs mt-1">sidevisninger</p>
+    </div>
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+      <p class="text-gray-400 text-sm mb-1">Siste 7 dager</p>
+      <p class="text-3xl font-bold text-cyan-400">{total7 ?? 0}</p>
+      <p class="text-gray-600 text-xs mt-1">sidevisninger</p>
+    </div>
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+      <p class="text-gray-400 text-sm mb-1">Siste 30 dager</p>
+      <p class="text-3xl font-bold text-cyan-400">{total30 ?? 0}</p>
+      <p class="text-gray-600 text-xs mt-1">sidevisninger</p>
+    </div>
+  </div>
+
+  <!-- Daglig graf -->
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
+    <h2 class="font-semibold mb-5">Daglige visninger — siste 30 dager</h2>
+    {dailyData.length === 0 ? (
+      <p class="text-gray-600 text-sm text-center py-8">Ingen data ennå</p>
+    ) : (
+      <div class="flex items-end gap-1 h-32">
+        {dailyData.map(d => (
+          <div class="flex-1 flex flex-col items-center gap-1 group relative">
+            <div
+              class="w-full bg-cyan-600 hover:bg-cyan-400 rounded-sm transition-colors cursor-default"
+              style={`height: ${Math.max(2, Math.round((d.views / maxDaily) * 112))}px`}
+              title={`${d.day}: ${d.views} visninger`}
+            ></div>
+            <div class="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+              {d.day}: {d.views}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div class="flex justify-between text-xs text-gray-600 mt-2">
+        <span>{dailyData[0]?.day}</span>
+        <span>{dailyData[dailyData.length - 1]?.day}</span>
+      </div>
+    )}
+  </div>
+
+  <div class="grid grid-cols-2 gap-6">
+    <!-- Populære sider -->
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+      <h2 class="font-semibold mb-5">Populære sider <span class="text-gray-500 text-sm font-normal">(30 dager)</span></h2>
+      {pagesData.length === 0 ? (
+        <p class="text-gray-600 text-sm text-center py-8">Ingen data ennå</p>
+      ) : (
+        <div class="space-y-3">
+          {pagesData.map(p => (
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-300 truncate max-w-[70%]">{p.path === '/' ? 'Forside' : p.path}</span>
+                <span class="text-gray-400 font-medium">{p.views}</span>
+              </div>
+              <div class="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  class="h-full bg-cyan-700 rounded-full"
+                  style={`width: ${Math.round((p.views / maxPages) * 100)}%`}
+                ></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <!-- Land -->
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+      <h2 class="font-semibold mb-5">Besøkende fra <span class="text-gray-500 text-sm font-normal">(30 dager)</span></h2>
+      {countryData.length === 0 ? (
+        <p class="text-gray-600 text-sm text-center py-8">Ingen data ennå</p>
+      ) : (
+        <div class="space-y-3">
+          {countryData.map(c => {
+            const maxC = countryData[0]?.views ?? 1;
+            return (
+              <div class="flex items-center gap-3 text-sm">
+                <span class="text-gray-300 w-8">{c.country}</span>
+                <div class="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-cyan-700 rounded-full"
+                    style={`width: ${Math.round((c.views / maxC) * 100)}%`}
+                  ></div>
+                </div>
+                <span class="text-gray-400 font-medium w-8 text-right">{c.views}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </div>
+</AdminLayout>
